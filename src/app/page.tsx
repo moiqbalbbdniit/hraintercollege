@@ -161,7 +161,7 @@ export default function Home() {
           {/* Director's Message */}
           <div>
             <h2 className="text-3xl font-bold text-teal-600 mb-4">
-              Director&#39;s Message
+              Director's Message
             </h2>
             <p className="text-gray-700 text-lg leading-relaxed">
               Welcome to our institution, where dedication meets excellence. As
