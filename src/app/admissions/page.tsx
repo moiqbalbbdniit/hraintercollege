@@ -12,7 +12,7 @@ export default function AdmissionsWorkingPage() {
           <div className="inline-flex items-center justify-center p-2 bg-yellow-100 text-yellow-800 rounded-full mb-4">
             <Wrench className="h-6 w-6" />
           </div>
-          <h1 className="text-4xl font-bold mb-4 text-teal-800">Iqbal&apos;s Team working hard on the Admissions Page</h1>
+          <h1 className="text-4xl font-bold mb-4 text-teal-800">Iqbal&#39;s Team working hard on the Admissions Page</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             We're working to improve your experience with a new and improved admissions process for the upcoming
             academic year.

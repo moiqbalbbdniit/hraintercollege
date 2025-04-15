@@ -161,7 +161,7 @@ export default function Home() {
           {/* Director's Message */}
           <div>
             <h2 className="text-3xl font-bold text-teal-600 mb-4">
-              Director&apos;s Message
+              Director&#39;s Message
             </h2>
             <p className="text-gray-700 text-lg leading-relaxed">
               Welcome to our institution, where dedication meets excellence. As
@@ -448,7 +448,7 @@ export default function Home() {
             <Card className="bg-teal-700 text-white border-none">
               <CardContent className="p-6">
                 <p className="italic mb-6">
-                  "Studying at H.R.A. Inter College was a transformative experience for me. The dedicated teachers, supportive environment, and focus on discipline laid a strong foundation for my higher education. It helped me build the confidence and academic skills necessary for engineering. I truly appreciate everything I learned during my time there."
+                  Studying at H.R.A. Inter College was a transformative experience for me. The dedicated teachers, supportive environment, and focus on discipline laid a strong foundation for my higher education. It helped me build the confidence and academic skills necessary for engineering. I truly appreciate everything I learned during my time there.
                 </p>
                 <div className="flex items-center">
                   <div className=" rounded-full bg-teal-600 mr-4">
@@ -473,7 +473,7 @@ export default function Home() {
             <Card className="bg-teal-700 text-white border-none">
               <CardContent className="p-6">
                 <p className="italic mb-6">
-                  "H.R.A. Inter College played a major role in shaping my future. The school encouraged creativity, critical thinking, and discipline, which are all important in my architecture studies. The faculty was always supportive and pushed me to do better. I'm proud to have been a student of this prestigious institution."
+                  H.R.A. Inter College played a major role in shaping my future. The school encouraged creativity, critical thinking, and discipline, which are all important in my architecture studies. The faculty was always supportive and pushed me to do better. I'm proud to have been a student of this prestigious institution.
                 </p>
                 <div className="flex items-center">
                   <div className=" rounded-full bg-teal-600 mr-4">
@@ -497,7 +497,7 @@ export default function Home() {
             <Card className="bg-teal-700 text-white border-none">
               <CardContent className="p-6">
                 <p className="italic mb-6">
-                  "My journey at H.R.A. Inter College was filled with learning, growth, and memorable experiences. The supportive teachers and well-structured curriculum prepared me well for my physiotherapy studies. The school didn’t just focus on academics, but also on overall development. I’m grateful for the values and education I received here."
+                  My journey at H.R.A. Inter College was filled with learning, growth, and memorable experiences. The supportive teachers and well-structured curriculum prepared me well for my physiotherapy studies. The school didn’t just focus on academics, but also on overall development. I’m grateful for the values and education I received here.
                 </p>
                 <div className="flex items-center">
                 <div className=" rounded-full bg-teal-600 mr-4">
