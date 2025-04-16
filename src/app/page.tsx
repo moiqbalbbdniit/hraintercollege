@@ -24,7 +24,7 @@ export default function Home() {
         {/* Hero Image */}
         <div className="relative w-full h-[500px]">
           <Image
-            src="/hero.jpg"
+            src="/images/hero.jpg"
             alt="HRA Inter College Campus"
             fill
             className="object-cover object-center"
