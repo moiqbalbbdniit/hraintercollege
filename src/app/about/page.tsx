@@ -221,7 +221,7 @@ export default function AboutPage() {
               <h3 className="text-xl font-bold mb-1">Mr. V.K. Srivastava</h3>
               <p className="text-blue-600 mb-3">Principal</p>
               <p className="text-gray-600 mb-4">
-                With over 25 years of experience in education, Dr. Kumar leads our institution with vision and
+                With over 25 years of experience in education, Mr. V.K. leads our institution with vision and
                 dedication.
               </p>
             </div>
