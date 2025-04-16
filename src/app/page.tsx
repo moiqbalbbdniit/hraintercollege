@@ -124,7 +124,7 @@ export default function Home() {
                     <div>
                       <h3 className="font-bold text-lg mb-2">Achievements</h3>
                       <p className="text-gray-600 mb-4">
-                        Discover our students' and faculty's achievements
+                        Discover our students&#39; and faculty&#39;s achievements
                       </p>
                       <Link
                         href="/achievements"
@@ -144,7 +144,7 @@ export default function Home() {
       {/* // director message section */}
       <section className="bg-white py-12 px-4 md:px-16" id="director-message">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-          {/* Director's Image */}
+          {/* Director&#39;s Image */}
           <div className="flex justify-center">
             <div className="w-[400px] h-[400px] rounded-2xl overflow-hidden shadow-lg">
               <Image
@@ -158,10 +158,10 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Director's Message */}
+          {/* Director&#39;s Message */}
           <div>
             <h2 className="text-3xl font-bold text-teal-600 mb-4">
-              Director's Message
+              Director&#39;s Message
             </h2>
             <p className="text-gray-700 text-lg leading-relaxed">
               Welcome to our institution, where dedication meets excellence. As
@@ -473,7 +473,7 @@ export default function Home() {
             <Card className="bg-teal-700 text-white border-none">
               <CardContent className="p-6">
                 <p className="italic mb-6">
-                  H.R.A. Inter College played a major role in shaping my future. The school encouraged creativity, critical thinking, and discipline, which are all important in my architecture studies. The faculty was always supportive and pushed me to do better. I'm proud to have been a student of this prestigious institution.
+                  H.R.A. Inter College played a major role in shaping my future. The school encouraged creativity, critical thinking, and discipline, which are all important in my architecture studies. The faculty was always supportive and pushed me to do better. I&#39;m proud to have been a student of this prestigious institution.
                 </p>
                 <div className="flex items-center">
                   <div className=" rounded-full bg-teal-600 mr-4">
@@ -528,7 +528,7 @@ export default function Home() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Our Location</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Find us easily with the map below. We're conveniently located in
+              Find us easily with the map below. We&#39;re conveniently located in
               the heart of the Utraula.
             </p>
           </div>
@@ -586,7 +586,7 @@ export default function Home() {
               <h2 className="text-3xl font-bold mb-6">Contact Us</h2>
               <p className="text-gray-700 mb-8">
                 Have questions or need more information? Feel free to reach out
-                to us. We're here to help!
+                to us. We&#39;re here to help!
               </p>
 
               <div className="space-y-6">

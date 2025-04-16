@@ -12,9 +12,9 @@ export default function AdmissionsWorkingPage() {
           <div className="inline-flex items-center justify-center p-2 bg-yellow-100 text-yellow-800 rounded-full mb-4">
             <Wrench className="h-6 w-6" />
           </div>
-          <h1 className="text-4xl font-bold mb-4 text-teal-800">Iqbal's Team working hard on the Admissions Page</h1>
+          <h1 className="text-4xl font-bold mb-4 text-teal-800">Iqbal&#39;s Team working hard on the Admissions Page</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            We're working to improve your experience with a new and improved admissions process for the upcoming
+            We&#39;re working to improve your experience with a new and improved admissions process for the upcoming
             academic year.
           </p>
         </div>
@@ -114,9 +114,9 @@ export default function AdmissionsWorkingPage() {
                   <Bell className="h-10 w-10 text-yellow-700" />
                 </div>
                 <div className="flex-grow">
-                  <h2 className="text-2xl font-bold mb-2">Get Notified When We're Ready</h2>
+                  <h2 className="text-2xl font-bold mb-2">Get Notified When We&#39;re Ready</h2>
                   <p className="text-gray-600 mb-4">
-                    Leave your email address and we'll notify you as soon as our new admissions page is live.
+                    Leave your email address and we&#39;ll notify you as soon as our new admissions page is live.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <input type="email" placeholder="Your email address" className="flex-grow p-3 border rounded-md" />

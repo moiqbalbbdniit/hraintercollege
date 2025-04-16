@@ -65,7 +65,7 @@ const carouselImages = [
     id: 10,
     src: "/images/gallery/topperceleberation.jpg",
     alt: "topper celebration",
-    caption: "Celebrating our students' achievements",
+    caption: "Celebrating our students&#39; achievements",
   },
 ]
 

@@ -53,7 +53,7 @@ export default function GalleryPage() {
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-2xl font-bold mb-4 text-teal-800">Have Photos to Share?</h2>
             <p className="text-gray-600 mb-6">
-              Are you a student, alumni, or parent with memorable photos from college events or activities? We'd love to
+              Are you a student, alumni, or parent with memorable photos from college events or activities? We&#39;d love to
               feature them in our gallery!
             </p>
             <Button className="bg-teal-700 hover:bg-teal-800">Submit Your Photos</Button>

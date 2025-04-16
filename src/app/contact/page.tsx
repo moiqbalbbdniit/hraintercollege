@@ -20,7 +20,7 @@ export default function ContactPage() {
         <div className="container relative z-20 mx-auto px-4 py-10 text-white">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
           <p className="text-xl max-w-3xl">
-            We're here to help. Reach out to us with any questions or inquiries.
+            We&#39;re here to help. Reach out to us with any questions or inquiries.
           </p>
         </div>
       </section>
@@ -175,7 +175,7 @@ export default function ContactPage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Our Location</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Find us easily with the map below. We're conveniently located in
+              Find us easily with the map below. We&#39;re conveniently located in
               the heart of the Utraula.
             </p>
           </div>
@@ -269,7 +269,7 @@ export default function ContactPage() {
                   <h3 className="font-bold text-lg mb-4">Administrative Offices</h3>
                   <div className="space-y-4">
                     <div>
-                      <h4 className="font-bold">Principal's Office</h4>
+                      <h4 className="font-bold">Principal&#39;s Office</h4>
                       <p className="text-gray-600">Email: principal@hraicollege.edu</p>
                       <p className="text-gray-600">Phone: +91 1234567895</p>
                     </div>
@@ -349,7 +349,7 @@ export default function ContactPage() {
       {/* CTA Section
       <section className="py-16 bg-blue-800 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">We'd Love to Hear From You</h2>
+          <h2 className="text-3xl font-bold mb-4">We&#39;d Love to Hear From You</h2>
           <p className="max-w-2xl mx-auto mb-8">
             Whether you have questions about admissions, academics, or campus life, our team is here to help. Reach out
             to us today!
