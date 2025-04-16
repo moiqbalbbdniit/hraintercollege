@@ -10,7 +10,7 @@ import { useMobile } from "@/hooks/use-mobile"
 export default function Header() {
   const isMobile = useMobile()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -20,7 +20,7 @@ export default function Header() {
 
   const closeMenu = () => {
     setIsMenuOpen(false)
-    setActiveDropdown(null)
+    
   }
 
   return (
