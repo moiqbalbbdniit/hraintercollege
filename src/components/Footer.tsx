@@ -140,7 +140,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-          <p>&copy; {currentYear} HRA Inter College Utraula. All rights reserved. <span className="text-yellow-600">made with ❤️ by <Link href="https://www.instagram.com/zaheen.iqbal/">Iqbal (web administrator)</Link></span></p>
+          <p>&copy; {currentYear} HRA Inter College Utraula. All rights reserved. <span className="text-yellow-600">made with ❤️ by <Link href="https://www.instagram.com/zaheen.iqbal/" className="underline">Iqbal (web administrator)</Link></span></p>
         </div>
       </div>
     </footer>

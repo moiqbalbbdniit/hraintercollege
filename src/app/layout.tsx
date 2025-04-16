@@ -10,22 +10,25 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Hra Inter College",
   description: "Official Website of Hra Inter College Utraula",
+  icons: {
+    icon: "/public/favicon.ico", 
+  },
 };
 
 interface RootLayoutProps {
   children: React.ReactNode;
 }
 
-export default async function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body className={inter.className}>
         <LayoutClient>
-        <Navbar/>
-        {children}
-        <Footer/>
+          <Navbar />
+          {children}
+          <Footer />
         </LayoutClient>
-        </body>
+      </body>
     </html>
   );
 }
