@@ -4,7 +4,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import LayoutClient from "@/components/LayoutClient";
-
+import { Toaster } from "@/components/ui/sonner"
+import AuthProvider from "@/context/AuthProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -22,13 +23,16 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
+      <AuthProvider>
       <body className={inter.className}>
         <LayoutClient>
           <Navbar />
+          <Toaster richColors position="top-right"/>
           {children}
           <Footer />
         </LayoutClient>
       </body>
+      </AuthProvider>
     </html>
   );
 }

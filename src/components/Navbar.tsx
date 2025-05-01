@@ -1,27 +1,22 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Menu, X,  } from "lucide-react"
-import { useMobile } from "@/hooks/use-mobile"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Menu, X } from "lucide-react";
+import { useMobile } from "@/hooks/use-mobile";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Header() {
-  const isMobile = useMobile()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  
+  const isMobile = useMobile();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: session, status } = useSession();
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const closeMenu = () => setIsMenuOpen(false);
 
-  
-
-  const closeMenu = () => {
-    setIsMenuOpen(false)
-    
-  }
+  const isAuthenticated = status === "authenticated";
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -47,30 +42,35 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           {!isMobile && (
-            <nav className="hidden md:flex items-center gap-1">
-              <Link href="/" className="px-3 py-2 text-gray-700 hover:text-teal-700 font-medium">
-                Home
-              </Link>
-
-              <Link href="/about" className="px-3 py-2 text-gray-700 hover:text-teal-700 font-medium">
-                About
-              </Link>
-
-              <Link href="/academics" className="px-3 py-2 text-gray-700 hover:text-teal-700 font-medium">
-                Academics
-              </Link>
-
-              <Link href="/admissions" className="px-3 py-2 text-gray-700 hover:text-teal-700 font-medium">
-                Admissions
-              </Link>
-
-              <Link href="/gallery" className="px-3 py-2 text-gray-700 hover:text-teal-700 font-medium">
-                Gallery
-              </Link>
-
-              <Link href="/contact" className="px-3 py-2 text-gray-700 hover:text-teal-700 font-medium">
-                Contact
-              </Link>
+            <nav className="hidden md:flex items-center gap-4">
+              {isAuthenticated ? (
+                <>
+                  {session?.user?.fullName && (
+                    <span className="text-gray-700 font-medium">Welcome, {session.user.fullName}</span>
+                  )}
+                  <Link href="/dashboard/profile" className="text-gray-700 hover:text-teal-700 font-medium">
+                    Profile
+                  </Link>
+                  <Link href="/dashboard/notice" className="text-gray-700 hover:text-teal-700 font-medium">
+                    Notice
+                  </Link>
+                  <Link href="/dashboard/results" className="text-gray-700 hover:text-teal-700 font-medium">
+                    Results
+                  </Link>
+                  <Button variant="outline" className="bg-teal-700 hover:bg-teal-800" onClick={() => signOut()}>
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link href="/" className="px-3 py-2 text-gray-700 hover:text-teal-700 font-medium">Home</Link>
+                  <Link href="/about" className="px-3 py-2 text-gray-700 hover:text-teal-700 font-medium">About</Link>
+                  <Link href="/academics" className="px-3 py-2 text-gray-700 hover:text-teal-700 font-medium">Academics</Link>
+                  <Link href="/admissions" className="px-3 py-2 text-gray-700 hover:text-teal-700 font-medium">Admissions</Link>
+                  <Link href="/gallery" className="px-3 py-2 text-gray-700 hover:text-teal-700 font-medium">Gallery</Link>
+                  <Link href="/contact" className="px-3 py-2 text-gray-700 hover:text-teal-700 font-medium">Contact</Link>
+                </>
+              )}
             </nav>
           )}
 
@@ -81,12 +81,14 @@ export default function Header() {
             </button>
           )}
 
-          {/* Apply Now Button (Desktop) */}
-          <div className="hidden md:block">
-            <Button className="bg-teal-700 hover:bg-teal-800"><Link href="/admissions">
-              Apply now
-            </Link></Button>
-          </div>
+          {/* Apply Now Button (Only when not logged in) */}
+          {!isMobile && !isAuthenticated && (
+            <div className="hidden md:block">
+              <Button className="bg-teal-700 hover:bg-teal-800">
+                <Link href="/admissions">Apply now</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -95,59 +97,43 @@ export default function Header() {
         <div className="md:hidden bg-white border-t">
           <div className="container mx-auto px-4 py-4">
             <nav className="flex flex-col gap-2">
-              <Link href="/" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>
-                Home
-              </Link>
-
-              <Link
-                href="/about"
-                className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md"
-                onClick={closeMenu}
-              >
-                About
-              </Link>
-
-              <Link
-                href="/academics"
-                className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md"
-                onClick={closeMenu}
-              >
-                Academics
-              </Link>
-
-              <Link
-                href="/admissions"
-                className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md"
-                onClick={closeMenu}
-              >
-                Admissions
-              </Link>
-
-              <Link
-                href="/gallery"
-                className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md"
-                onClick={closeMenu}
-              >
-                Gallery
-              </Link>
-
-              <Link
-                href="/contact"
-                className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md"
-                onClick={closeMenu}
-              >
-                Contact
-              </Link>
-
-              <div className="mt-2">
-                <Button className="w-full bg-teal-700 hover:bg-teal-800"><Link href="/admissions">
-              Apply now
-            </Link></Button>
-              </div>
+              {isAuthenticated ? (
+                <>
+                  {session?.user?.fullName && (
+                    <span className="text-gray-700 font-medium">Welcome, {session.user.fullName}</span>
+                  )}
+                  <Link href="/dashboard/profile" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>
+                    Profile
+                  </Link>
+                  <Link href="/dashboard/notice" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>
+                    Notice
+                  </Link>
+                  <Link href="/dashboard/results" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>
+                    Results
+                  </Link>
+                  <Button variant="outline" onClick={() => { closeMenu(); signOut(); }}>
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link href="/" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>Home</Link>
+                  <Link href="/about" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>About</Link>
+                  <Link href="/academics" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>Academics</Link>
+                  <Link href="/admissions" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>Admissions</Link>
+                  <Link href="/gallery" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>Gallery</Link>
+                  <Link href="/contact" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>Contact</Link>
+                  <div className="mt-2">
+                    <Button className="w-full bg-teal-700 hover:bg-teal-800">
+                      <Link href="/admissions" onClick={closeMenu}>Apply now</Link>
+                    </Button>
+                  </div>
+                </>
+              )}
             </nav>
           </div>
         </div>
       )}
     </header>
-  )
+  );
 }
