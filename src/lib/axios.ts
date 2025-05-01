@@ -42,7 +42,7 @@ axiosInstance.interceptors.response.use(
     if (error.response) {
       const status = error.response.status;
       const message =
-        (error.response.data as any)?.message || "Something went wrong";
+        (error.response.data as { message?: string })?.message || "Something went wrong";
 
       if (status === 401) {
         // Token expired, logout user

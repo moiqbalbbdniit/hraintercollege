@@ -124,7 +124,7 @@ export default function Home() {
                     <div>
                       <h3 className="font-bold text-lg mb-2">Achievements</h3>
                       <p className="text-gray-600 mb-4">
-                        Discover our students&#39; and faculty&#39;s achievements
+                        Discover our student&#39;s and faculty&#39;s achievements
                       </p>
                       <Link
                         href="/achievements"

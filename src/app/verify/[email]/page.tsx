@@ -31,10 +31,10 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { verifySchema } from "@/schema/verifySchema";
-import axios, { AxiosError } from "axios";
+
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ApiResponse } from "@/types/ApiResponse";
+
 
 export default function VerifyOTPPage() {
   const router = useRouter();
@@ -85,10 +85,11 @@ export default function VerifyOTPPage() {
         toast.error(response.data.message || "OTP Verification failed");
       }
   
-    } catch (error) {
-      // const axiosError = error as AxiosError<ApiResponse>;
-      // toast.error(axiosError.response?.data.message || "Something went wrong");
-    } finally {
+     } //catch (error) {
+    //   // const axiosError = error as AxiosError<ApiResponse>;
+    //   // toast.error(axiosError.response?.data.message || "Something went wrong");
+    //} 
+    finally {
       setIsSubmitting(false);
     }
   };
@@ -177,7 +178,7 @@ export default function VerifyOTPPage() {
               Verify Your Account
             </CardTitle>
             <CardDescription className="text-center">
-              We've sent a 6-digit verification code to 
+              We&#39;ve sent a 6-digit verification code to 
               <span className="font-bold ml-2">{email}</span>
             </CardDescription>
           </CardHeader>

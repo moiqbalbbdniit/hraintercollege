@@ -1,7 +1,7 @@
 // /src/lib/authStore.ts
 import { create } from "zustand";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation"; // In components, not here
+
 
 interface AuthState {
   token: string | null;

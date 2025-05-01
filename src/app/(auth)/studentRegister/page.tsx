@@ -6,8 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
 import Link from "next/link";
-import { Eye, EyeOff, CheckCircle } from "lucide-react";
-import axios, { AxiosError } from "axios";
+import { Eye, EyeOff } from "lucide-react";
+
 import axiosInstance from "@/lib/axios";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select";
 import { studentSignUpSchema } from "@/schema/studentsignUpSchema";
 import { toast } from "sonner";
-import { ApiResponse } from "@/types/ApiResponse";
+
 
 // Define the form validation schema using Zod
 
@@ -40,7 +40,7 @@ export default function StudentSignupPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  
   const router = useRouter();
 
   // Initialize react-hook-form
@@ -70,9 +70,9 @@ export default function StudentSignupPage() {
       } else {
         toast.error(response.data.message || "Error creating account.");
       }
-    } catch (error) {
-      // const axiosError = error as AxiosError<ApiResponse>;
-      // toast.error(axiosError.response?.data.message || "Something went wrong");
+    // } catch (error) {
+    //   // const axiosError = error as AxiosError<ApiResponse>;
+    //   // toast.error(axiosError.response?.data.message || "Something went wrong");
     } finally {
       setIsSubmitting(false);
     }

@@ -5,9 +5,6 @@ import { CalendarDays, BookOpen, Bell, LogOut, Clock } from "lucide-react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
-import {Student} from "@/model/User";
-import { useEffect, useState } from "react";
-import axios from "axios";
 
 const attendanceData = [
   { date: "Mon", present: 1 },
@@ -54,7 +51,7 @@ export default function Dashboard() {
             Welcome, {session?.user?.fullName || "Student"} 🎓
           </h1>
           <p className="text-teal-700 mt-1">
-            Here's your academic dashboard overview.
+            Here&#39;s your academic dashboard overview.
           </p>
         </header>
 
