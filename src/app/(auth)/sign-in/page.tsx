@@ -8,7 +8,7 @@ import Image from "next/image";
 
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { signIn } from 'next-auth/react';
+import { getSession, signIn } from 'next-auth/react';
 import { toast } from "sonner";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,13 +25,10 @@ import { Input } from "@/components/ui/input";
 import { studentsignInSchema } from "@/schema/studentsignInSchema";
 
 
-
-
-
-
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [role, setRole] = useState(""); // Default role is "student"
   const router = useRouter();
 
   const form = useForm<z.infer<typeof studentsignInSchema>>({
@@ -39,6 +36,7 @@ export default function LoginPage() {
     defaultValues: {
       email: "",
       password: "",
+      role: "Student", // Set default role value
     },
   });
 
@@ -49,15 +47,29 @@ export default function LoginPage() {
         redirect: false,
         email: data.email,
         password: data.password,
+        role: data.role, // Pass the selected role
       });
   
       if (result?.error) {
         toast.error(result.error); // <- directly show backend error message
         form.setValue("password", ""); // Clear password field on error
-      } else if (result?.url) {
+      } else if (result?.ok) {
+        const session = await getSession();
+        const role = session?.user?.role; // Get the role from the session
+        if(role === "Student"){
         toast.success("Login successful! Redirecting...");
         form.reset();
-        router.replace("/dashboard");
+        router.replace("/dashboard/student"); // Redirect to student dashboard
+        }
+        else if(role === "Teacher"){
+          toast.success("Login successful! Redirecting...");
+          form.reset();
+          router.replace("/dashboard/teacher"); // Redirect to teacher dashboard
+        }
+        else{
+          toast.error("Invalid role selected. Please try again.");
+          router.replace("/sign-in"); // Redirect to login page
+        }
       }
       
     } catch (error) {
@@ -94,6 +106,7 @@ export default function LoginPage() {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   
+
                   <FormField
                     control={form.control}
                     name="email"
@@ -138,6 +151,28 @@ export default function LoginPage() {
                       </FormItem>
                     )}
                   />
+                  
+                  {/* Role Selection */}
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Are you a Student/Teacher?</FormLabel>
+                        <FormControl>
+                          <select
+                            className="w-full px-4 py-2 border rounded-md"
+                            {...field}
+                          >
+                            <option value="Student">Student</option>
+                            <option value="Teacher">Teacher</option>
+                            
+                          </select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <Button
                     type="submit"
@@ -173,14 +208,6 @@ export default function LoginPage() {
                     )}
                   </Button>
 
-                  {/* <div className="text-center mt-4">
-                    <p className="text-sm text-gray-600">
-                      Don't have an account?{" "}
-                      <Link href="/signup" className="text-teal-700 hover:underline font-medium">
-                        Sign Up
-                      </Link>
-                    </p>
-                  </div> */}
                 </form>
               </Form>
             </CardContent>

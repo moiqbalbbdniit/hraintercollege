@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -17,6 +16,7 @@ export default function Header() {
   const closeMenu = () => setIsMenuOpen(false);
 
   const isAuthenticated = status === "authenticated";
+  const isTeacher = session?.user?.role === "Teacher"; // Check if the user is a teacher
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -45,18 +45,26 @@ export default function Header() {
             <nav className="hidden md:flex items-center gap-4">
               {isAuthenticated ? (
                 <>
-                  {session?.user?.fullName && (
-                    <span className="text-gray-700 font-medium">Welcome, {session.user.fullName}</span>
-                  )}
+                  {/* Display Welcome message for teacher */}
+                  <span className="text-gray-700 font-medium">
+                    Welcome, {session.user.fullName}
+                  </span>
                   <Link href="/dashboard/profile" className="text-gray-700 hover:text-teal-700 font-medium">
-                    Profile
-                  </Link>
-                  <Link href="/dashboard/notice" className="text-gray-700 hover:text-teal-700 font-medium">
-                    Notice
-                  </Link>
-                  <Link href="/dashboard/results" className="text-gray-700 hover:text-teal-700 font-medium">
-                    Results
-                  </Link>
+                        Profile
+                      </Link>
+                  {/* Only show these links if the user is not a teacher */}
+                  {!isTeacher && (
+                    <>
+                      
+                      <Link href="/dashboard/notice" className="text-gray-700 hover:text-teal-700 font-medium">
+                        Notice
+                      </Link>
+                      <Link href="/dashboard/results" className="text-gray-700 hover:text-teal-700 font-medium">
+                        Results
+                      </Link>
+                    </>
+                  )}
+
                   <Button variant="outline" className="bg-teal-700 hover:bg-teal-800" onClick={() => signOut()}>
                     Logout
                   </Button>
@@ -99,18 +107,23 @@ export default function Header() {
             <nav className="flex flex-col gap-2">
               {isAuthenticated ? (
                 <>
-                  {session?.user?.fullName && (
-                    <span className="text-gray-700 font-medium">Welcome, {session.user.fullName}</span>
+                  <span className="text-gray-700 font-medium">
+                    Welcome, {session.user.fullName}
+                  </span>
+                  {/* Only show these links if the user is not a teacher */}
+                  {!isTeacher && (
+                    <>
+                      <Link href="/dashboard/profile" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>
+                        Profile
+                      </Link>
+                      <Link href="/dashboard/notice" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>
+                        Notice
+                      </Link>
+                      <Link href="/dashboard/results" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>
+                        Results
+                      </Link>
+                    </>
                   )}
-                  <Link href="/dashboard/profile" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>
-                    Profile
-                  </Link>
-                  <Link href="/dashboard/notice" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>
-                    Notice
-                  </Link>
-                  <Link href="/dashboard/results" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>
-                    Results
-                  </Link>
                   <Button variant="outline" onClick={() => { closeMenu(); signOut(); }}>
                     Logout
                   </Button>

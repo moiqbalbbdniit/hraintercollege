@@ -63,7 +63,7 @@ export default function StudentSignupPage() {
     console.log("Form Data:", data);
     setIsSubmitting(true);
     try {
-      const response = await axiosInstance.post("/api/signup", data);
+      const response = await axiosInstance.post("/api/signup/studentRegister", data);
       if (response.data.success) {
         toast.success(response.data.message || "Account Created Successfully.");
         router.replace(`/verify/${data.email}`);
