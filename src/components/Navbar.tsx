@@ -55,8 +55,7 @@ export default function Header() {
                   {/* Only show these links if the user is not a teacher */}
                   {!isTeacher && (
                     <>
-                      
-                      <Link href="/dashboard/notice" className="text-gray-700 hover:text-teal-700 font-medium">
+                       <Link href="/dashboard/notice" className="text-gray-700 hover:text-teal-700 font-medium">
                         Notice
                       </Link>
                       <Link href="/dashboard/results" className="text-gray-700 hover:text-teal-700 font-medium">
@@ -65,7 +64,7 @@ export default function Header() {
                     </>
                   )}
 
-                  <Button variant="outline" className="bg-teal-700 hover:bg-teal-800" onClick={() => signOut()}>
+                  <Button variant="outline" className="bg-teal-700 hover:bg-teal-800" onClick={() => signOut({ callbackUrl: 'https://hraintercollege.netlify.app' })}>
                     Logout
                   </Button>
                 </>
@@ -92,9 +91,12 @@ export default function Header() {
           {/* Apply Now Button (Only when not logged in) */}
           {!isMobile && !isAuthenticated && (
             <div className="hidden md:block">
-              <Button className="bg-teal-700 hover:bg-teal-800">
-                <Link href="/sign-in">Login</Link>
-              </Button>
+              {/* Move Link outside the Button */}
+              <Link href="/sign-in">
+                <Button className="bg-teal-700 hover:bg-teal-800">
+                  Login
+                </Button>
+              </Link>
             </div>
           )}
         </div>
@@ -124,7 +126,7 @@ export default function Header() {
                       </Link>
                     </>
                   )}
-                  <Button className="bg-teal-700 hover:bg-teal-800" onClick={() => { closeMenu(); signOut(); }}>
+                  <Button className="bg-teal-700 hover:bg-teal-800" onClick={() => { closeMenu(); signOut({ callbackUrl: 'https://hraintercollege.netlify.app' }) }}>
                     Logout
                   </Button>
                 </>
@@ -137,9 +139,12 @@ export default function Header() {
                   <Link href="/gallery" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>Gallery</Link>
                   <Link href="/contact" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>Contact</Link>
                   <div className="mt-2">
-                    <Button className="w-full bg-teal-700 hover:bg-teal-800">
-                      <Link href="/sign-in" onClick={closeMenu}>Login</Link>
-                    </Button>
+                    {/* Move Link outside the Button */}
+                    <Link href="/sign-in" onClick={closeMenu}>
+                      <Button className="w-full bg-teal-700 hover:bg-teal-800">
+                        Login
+                      </Button>
+                    </Link>
                   </div>
                 </>
               )}

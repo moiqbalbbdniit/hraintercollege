@@ -21,22 +21,19 @@ export const authOptions: NextAuthOptions = {
         password: {
           label: "Password",
           type: "password",
-          placeholder: "Enter yourPassword",
+          placeholder: "Enter your Password",
         },
-        role:{
-          label:"Are you a Student/Teacher?",
-          type:"select",
-          options:[
-            "Student",
-            "Teacher"
-          ]
-        }
+        role: {
+          label: "Are you a Student/Teacher?",
+          type: "select",
+          options: ["Student", "Teacher"],
+        },
       },
-      async authorize(credentials): Promise<User | null> {
+      async authorize(credentials) {
         if (!credentials?.email || !credentials?.password || !credentials?.role) {
           throw new Error("Email, Password and Role are required");
         }
-      
+
         await dbConnect();
         let user;
         if (credentials.role === "Student") {
@@ -46,40 +43,29 @@ export const authOptions: NextAuthOptions = {
         } else {
           throw new Error("Invalid role selected");
         }
- 
-        
-      
+
         if (!user) {
           throw new Error("No account found with this email");
         }
-      
-        // if (!user.isVerified) {
-        //   throw new Error("Account not verified. Please verify your email.");
-        // }
-      
-        const isPasswordCorrect = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-      
+
+        const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordCorrect) {
           throw new Error("Incorrect password. Please try again.");
         }
-      
+
         return {
           id: user._id.toString(),
           email: user.email,
           role: credentials.role,
           isVerified: user.isVerified,
           fullName: user.fullName,
-          studentClass: user.studentClass || null, // Only for students
-          assignedClass: user.assignedClass || null, // Only for teachers
+          studentClass: user.studentClass || null,
+          assignedClass: user.assignedClass || null,
           rollNo: user.rollNo,
           subject: user.subject,
           section: user.section,
         };
-      }
-      
+      },
     }),
   ],
   callbacks: {
@@ -92,19 +78,13 @@ export const authOptions: NextAuthOptions = {
         token.fullName = user.fullName;
         token.studentClass = user.studentClass;
         token.assignedClass = user.assignedClass;
-        token.rollNo = user.rollNo; 
+        token.rollNo = user.rollNo;
         token.subject = user.subject;
         token.section = user.section;
       }
       return token;
     },
-    async session({
-      session,
-      token,
-    }: {
-      session: Session;
-      token: JWT;
-    }): Promise<Session> {
+    async session({ session, token }: { session: Session; token: JWT }): Promise<Session> {
       if (token) {
         session.user._id = token._id;
         session.user.role = token.role;
@@ -126,5 +106,15 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/sign-in",
+  },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // only secure cookies in production
+        sameSite: "lax", // to avoid CSRF issues
+      },
+    },
   },
 };
