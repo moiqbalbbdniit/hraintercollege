@@ -93,7 +93,7 @@ export default function Header() {
           {!isMobile && !isAuthenticated && (
             <div className="hidden md:block">
               <Button className="bg-teal-700 hover:bg-teal-800">
-                <Link href="/admissions">Apply now</Link>
+                <Link href="/sign-in">Login</Link>
               </Button>
             </div>
           )}
@@ -124,7 +124,7 @@ export default function Header() {
                       </Link>
                     </>
                   )}
-                  <Button variant="outline" onClick={() => { closeMenu(); signOut(); }}>
+                  <Button className="bg-teal-700 hover:bg-teal-800" onClick={() => { closeMenu(); signOut(); }}>
                     Logout
                   </Button>
                 </>
@@ -138,7 +138,7 @@ export default function Header() {
                   <Link href="/contact" className="px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md" onClick={closeMenu}>Contact</Link>
                   <div className="mt-2">
                     <Button className="w-full bg-teal-700 hover:bg-teal-800">
-                      <Link href="/admissions" onClick={closeMenu}>Apply now</Link>
+                      <Link href="/sign-in" onClick={closeMenu}>Login</Link>
                     </Button>
                   </div>
                 </>

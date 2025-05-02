@@ -112,6 +112,7 @@ export default function TeacherSignupPage() {
         toast.error(response.data.message || "Error creating account.");
       }
     } catch (error) {
+      console.error("Error during registration:", error);
       toast.error("Something went wrong. Please try again.");
     }
   };
@@ -132,7 +133,7 @@ export default function TeacherSignupPage() {
               Teacher Registration
             </h1>
             <p className="text-gray-600">
-              Create your Teacher account to access students' academic progress.
+              Create your Teacher account to access students academic progress.
             </p>
           </div>
 

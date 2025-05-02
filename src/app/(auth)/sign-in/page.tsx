@@ -28,7 +28,7 @@ import { studentsignInSchema } from "@/schema/studentsignInSchema";
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [role, setRole] = useState(""); // Default role is "student"
+  
   const router = useRouter();
 
   const form = useForm<z.infer<typeof studentsignInSchema>>({
