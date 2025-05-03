@@ -43,7 +43,7 @@ export default function Dashboard() {
       <div className="max-w-6xl mx-auto">
         <header className="mb-6">
           <h1 className="text-3xl font-bold text-teal-800">
-            Welcome, {`${session?.user?.fullName} "Sir"` || "Teacher"} 🧑🏻‍🏫
+            Welcome, {`${session?.user?.fullName}` || "Teacher"} 🧑🏻‍🏫
           </h1>
           <p className="text-teal-700 mt-1">
             Here&#39;s your dashboard overview.

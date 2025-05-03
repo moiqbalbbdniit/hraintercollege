@@ -149,7 +149,7 @@ export default function VerifyOTPPage() {
                   with your email and password.
                 </CardDescription>
                 <Button className="bg-teal-700 hover:bg-teal-800 w-full">
-                  <Link href="/studentSignin">Continue to Login Page</Link>
+                  <Link href="/sign-in">Continue to Login Page</Link>
                 </Button>
               </div>
             </CardContent>
