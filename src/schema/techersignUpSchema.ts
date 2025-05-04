@@ -10,7 +10,7 @@ export const teacherSignUpSchema = z.object({
           .min(6, { message: "Password must be at least 6 characters long" }),
         
         assignedClass: z.string().min(1, { message: "Please select your Class" }),
-        gender:z.string(),
+        gender:z.string().min(1, { message: "Please select Gender" }),  
         subject: z.string().min(1, { message: "Please select yourSubject" }),
         section: z.string().min(1, { message: "Please select your Section" }),
         
