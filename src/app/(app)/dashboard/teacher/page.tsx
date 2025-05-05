@@ -10,7 +10,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 import { 
@@ -75,6 +75,7 @@ export default function Dashboard() {
       setFilteredStudents(res.data.students);
       setNumberofstudents(res.data.students.length);
     } catch (error) {
+      console.error("Student fetch error:", error);
       toast.error("Failed to fetch students");
     } finally {
       setIsLoading(false);
@@ -167,7 +168,7 @@ export default function Dashboard() {
             <h1 className="text-2xl md:text-3xl font-bold text-teal-800">
               Welcome, {`${session?.user?.fullName}` || "Teacher"} 🧑🏻‍🏫
             </h1>
-            <p className="text-teal-700 mt-1">Here's your dashboard overview.</p>
+            <p className="text-teal-700 mt-1">Here&#39;s your dashboard overview.</p>
           </div>
           <Button
             onClick={() => signOut()}

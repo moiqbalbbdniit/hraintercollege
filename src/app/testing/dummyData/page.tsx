@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
-import { Button } from "@/components/ui/button"; // Update the import path based on your project structure
+import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(false);

@@ -13,6 +13,7 @@ export async function GET(req: Request) {
     const history = await AttendanceModel.find({ studentId }).sort({ date: -1 });
     return NextResponse.json({ success: true, history });
   } catch (error) {
+    console.error("Error fetching attendance history:", error); 
     return NextResponse.json({ error: "Failed to fetch history" }, { status: 500 });
   }
 }

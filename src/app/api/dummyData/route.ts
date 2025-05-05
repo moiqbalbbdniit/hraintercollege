@@ -2,7 +2,7 @@ import dbConnect from "@/lib/dbConnect";  // Adjust path based on your setup
 import StudentModel from "@/model/User";
 import bcrypt from "bcryptjs";
 
-export async function POST(request: Request) {
+export async function POST() {
   await dbConnect();
 
   const students = [];
