@@ -13,18 +13,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-import { 
-  BookOpen, 
-  Bell, 
-  LogOut, 
-  CalendarDays, 
+import {
+  BookOpen,
+  Bell,
+  LogOut,
+  CalendarDays,
   Eye,
   Users,
   CheckCircle2,
   XCircle,
   Edit,
   Save,
-  Loader2
+  Loader2,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
@@ -62,9 +62,20 @@ export default function Dashboard() {
   const [checkedStudents, setCheckedStudents] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
-  const [editModeStudentId, setEditModeStudentId] = useState<string | null>(null);
+  const [editModeStudentId, setEditModeStudentId] = useState<string | null>(
+    null
+  );
   const [editStatus, setEditStatus] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState(false);
+
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  };
 
   // Fetch students' data from the API
   const fetchStudents = async () => {
@@ -85,7 +96,27 @@ export default function Dashboard() {
   // Fetch attendance data for a specific date
   const fetchAttendanceByDate = async () => {
     if (!selectedDate) return;
-    
+
+    const today = new Date();
+    // Remove time portion for accurate date comparison
+    const selected = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate()
+    );
+    const current = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+
+    // If selected date is in the future
+    if (selected > current) {
+      setAttendanceData([]);
+      toast.info("No attendance records found for future dates.");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const res = await axios.get(
@@ -111,11 +142,9 @@ export default function Dashboard() {
       });
 
       // Update local state
-      setAttendanceData(prev => 
-        prev.map(record => 
-          record.studentId === studentId 
-            ? { ...record, present } 
-            : record
+      setAttendanceData((prev) =>
+        prev.map((record) =>
+          record.studentId === studentId ? { ...record, present } : record
         )
       );
 
@@ -137,7 +166,7 @@ export default function Dashboard() {
 
   // Mark attendance for all students
   const markAllAttendance = async (present: boolean) => {
-    const allStudentIds = students.map(student => student._id);
+    const allStudentIds = students.map((student) => student._id);
     setCheckedStudents(present ? allStudentIds : []);
   };
 
@@ -146,8 +175,10 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    fetchAttendanceByDate();
-  }, [selectedDate]);
+    if (viewAttendanceModal) {
+      fetchAttendanceByDate();
+    }
+  }, [selectedDate, viewAttendanceModal]);
 
   useEffect(() => {
     const term = searchTerm.toLowerCase();
@@ -168,7 +199,9 @@ export default function Dashboard() {
             <h1 className="text-2xl md:text-3xl font-bold text-teal-800">
               Welcome, {`${session?.user?.fullName}` || "Teacher"} 🧑🏻‍🏫
             </h1>
-            <p className="text-teal-700 mt-1">Here&#39;s your dashboard overview.</p>
+            <p className="text-teal-700 mt-1">
+              Here&#39;s your dashboard overview.
+            </p>
           </div>
           <Button
             onClick={() => signOut()}
@@ -194,7 +227,9 @@ export default function Dashboard() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Class:</span>
-                <span className="font-medium">{session?.user?.assignedClass}</span>
+                <span className="font-medium">
+                  {session?.user?.assignedClass}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Section:</span>
@@ -231,10 +266,20 @@ export default function Dashboard() {
                 <Button
                   onClick={() => setOpenModal(true)}
                   className="bg-teal-700 hover:bg-teal-800 text-white"
+                  disabled={!isToday(selectedDate)}
                 >
                   <span className="hidden sm:inline">Mark Attendance</span>
                   <span className="sm:hidden">Mark</span>
                 </Button>
+                {!isToday(selectedDate) && (
+                  <div className="flex items-center gap-2 rounded-md bg-red-50 p-2 text-red-700 border border-red-200 mt-2">
+                  <XCircle className="w-4 h-4 shrink-0" />
+                  <span className="text-sm font-medium">
+                    You can only mark attendance for today.
+                  </span>
+                </div>
+                
+                )}
                 <Button
                   onClick={() => setViewAttendanceModal(true)}
                   variant="outline"
@@ -288,7 +333,7 @@ export default function Dashboard() {
                         (a) => a.studentId === student._id
                       );
                       const isPresent = attendanceRecord?.present ?? false;
-                      
+
                       return (
                         <TableRow key={student._id}>
                           <TableCell className="font-medium">
@@ -367,7 +412,10 @@ export default function Dashboard() {
         </Card>
 
         {/* View Attendance Modal */}
-        <Dialog open={viewAttendanceModal} onOpenChange={setViewAttendanceModal}>
+        <Dialog
+          open={viewAttendanceModal}
+          onOpenChange={setViewAttendanceModal}
+        >
           <DialogContent className="w-full max-w-[95vw] sm:max-w-[625px]">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
@@ -392,11 +440,15 @@ export default function Dashboard() {
                     {attendanceData.length > 0 ? (
                       attendanceData.map((record) => (
                         <TableRow key={record.studentId}>
-                          <TableCell className="font-medium">{record.fullName}</TableCell>
+                          <TableCell className="font-medium">
+                            {record.fullName}
+                          </TableCell>
                           <TableCell>{record.rollNo}</TableCell>
                           <TableCell>
                             <Badge
-                              variant={record.present ? "default" : "destructive"}
+                              variant={
+                                record.present ? "default" : "destructive"
+                              }
                             >
                               {record.present ? "Present" : "Absent"}
                             </Badge>
@@ -405,7 +457,10 @@ export default function Dashboard() {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={3} className="text-center py-8 text-gray-500">
+                        <TableCell
+                          colSpan={3}
+                          className="text-center py-8 text-gray-500"
+                        >
                           No attendance records found for this date
                         </TableCell>
                       </TableRow>
@@ -415,7 +470,7 @@ export default function Dashboard() {
               </div>
             </ScrollArea>
             <DialogFooter>
-              <Button 
+              <Button
                 onClick={() => setViewAttendanceModal(false)}
                 className="w-full sm:w-auto"
               >
@@ -479,7 +534,9 @@ export default function Dashboard() {
                             }}
                           />
                         </TableCell>
-                        <TableCell className="font-medium">{student.fullName}</TableCell>
+                        <TableCell className="font-medium">
+                          {student.fullName}
+                        </TableCell>
                         <TableCell>{student.rollNo}</TableCell>
                       </TableRow>
                     ))}
@@ -538,9 +595,7 @@ export default function Dashboard() {
                 View and manage academic results and progress reports.
               </p>
               <Button variant="outline" className="w-full" asChild>
-                <Link href="/dashboard/results">
-                  View Results
-                </Link>
+                <Link href="/dashboard/results">View Results</Link>
               </Button>
             </CardContent>
           </Card>
@@ -557,9 +612,7 @@ export default function Dashboard() {
                 View important college announcements and updates.
               </p>
               <Button variant="outline" className="w-full" asChild>
-                <Link href="/dashboard/notice">
-                  View Notices
-                </Link>
+                <Link href="/dashboard/notice">View Notices</Link>
               </Button>
             </CardContent>
           </Card>
