@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+
 import dbConnect from "@/lib/dbConnect";
 import StudentModel from "@/model/User";
 import { getServerSession } from "next-auth";
