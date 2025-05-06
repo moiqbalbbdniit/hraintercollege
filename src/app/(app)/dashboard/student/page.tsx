@@ -5,43 +5,69 @@ import { CalendarDays, BookOpen, Bell, LogOut, Clock } from "lucide-react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
-
-const attendanceData = [
-  { date: "Mon", present: 1 },
-  { date: "Tue", present: 1 },
-  { date: "Wed", present: 0 },
-  { date: "Thu", present: 1 },
-  { date: "Fri", present: 1 },
-  { date: "Sat", present: 1 },
-];
-//logic from attendanceData to calculate percentage
-const totalDays = attendanceData.length;
-const presentDays = attendanceData.filter((day) => day.present === 1).length;
-const absentDays = totalDays - presentDays;
-const attendancePercentage = Math.round((presentDays / totalDays) * 100);
-
-const doughnutData = [
-  { name: "Present", value: presentDays },
-  { name: "Absent", value: absentDays },
-];
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "sonner";
+import dayjs from "dayjs";
 
 const COLORS = ["#0f766e", "#f87171"]; // Teal for present, Red for absent
 
-const timetable = [
-  { time: "08:00 AM", subject: "Math" },
-  { time: "09:00 AM", subject: "Science" },
-  { time: "10:00 AM", subject: "English" },
-  { time: "11:00 AM", subject: "Break" },
-  { time: "11:30 AM", subject: "History" },
-  { time: "12:30 PM", subject: "Computer" },
-];
+interface AttendanceRecord {
+  date: string;
+  present: boolean;
+}
+
+interface TimetableItem {
+  time: string;
+  subject: string;
+}
 
 export default function Dashboard() {
   const { data: session } = useSession();
-  
+  const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [timetable, setTimetable] = useState<TimetableItem[]>([]);
 
- ;
+  // Fetch attendance data
+  useEffect(() => {
+    const fetchAttendance = async () => {
+      try {
+        const res = await axios.get("/api/attendance/student");
+        setAttendanceData(res.data.attendance || []);
+      } catch (error) {
+        console.error("Error fetching attendance:", error);
+        toast.error("Failed to load attendance data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
+    const fetchTimetable = async () => {
+      try {
+        const res = await axios.get("/api/timetable");
+        setTimetable(res.data.timetable || []);
+      } catch (error) {
+        console.error("Error fetching timetable:", error);
+        toast.error("Failed to load timetable");
+      }
+    };
+
+    fetchAttendance();
+    fetchTimetable();
+  }, []);
+
+  // Calculate attendance stats
+  const totalDays = attendanceData.length;
+  const presentDays = attendanceData.filter(day => day.present).length;
+  const absentDays = totalDays - presentDays;
+  const attendancePercentage = totalDays > 0 
+    ? Math.round((presentDays / totalDays) * 100) 
+    : 0;
+
+  const doughnutData = [
+    { name: "Present", value: presentDays },
+    { name: "Absent", value: absentDays },
+  ];
 
   return (
     <main className="min-h-screen bg-teal-50 p-6">
@@ -59,18 +85,20 @@ export default function Dashboard() {
           <h2 className="text-2xl font-semibold text-teal-800 mb-4">
             Student Information
           </h2>
-          <p className="text-gray-700 text-lg">
-            Name: <span className="font-medium">{session?.user?.fullName || "Student"}</span>
-          </p>
-          <p className="text-gray-700 text-lg">
-            Class: <span className="font-medium">{session?.user?.studentClass || "Student Class"}</span>
-          </p>
-          <p className="text-gray-700 text-lg">
-            Section: <span className="font-medium">{session?.user?.section || "Student Section"}</span>
-          </p>
-          <p className="text-gray-700 text-lg">
-            Roll Number: <span className="font-medium">{session?.user?.rollNo || "Student Roll Number"}</span>
-          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <p className="text-gray-700 text-lg">
+              Name: <span className="font-medium">{session?.user?.fullName || "N/A"}</span>
+            </p>
+            <p className="text-gray-700 text-lg">
+              Class: <span className="font-medium">{session?.user?.studentClass || "N/A"}</span>
+            </p>
+            <p className="text-gray-700 text-lg">
+              Section: <span className="font-medium">{session?.user?.section || "N/A"}</span>
+            </p>
+            <p className="text-gray-700 text-lg">
+              Roll No: <span className="font-medium">{session?.user?.rollNo || "N/A"}</span>
+            </p>
+          </div>
         </section>
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
@@ -80,40 +108,56 @@ export default function Dashboard() {
                 <CalendarDays className="text-teal-600 h-6 w-6" /> Attendance
                 Overview
               </h2>
-              <ResponsiveContainer width="100%" height={220}>
-                <PieChart>
-                  <Pie
-                    data={doughnutData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {doughnutData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
+              {isLoading ? (
+                <div className="h-60 flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500"></div>
+                </div>
+              ) : (
+                <>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <PieChart>
+                      <Pie
+                        data={doughnutData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {doughnutData.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        formatter={(value, name) => [`${value} days`, name]}
                       />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-              <p className="text-center text-teal-700 font-medium mt-2">
-                Attendance: {attendancePercentage}%
-              </p>
-              <p className="text-center text-teal-700 font-medium mt-2">
-                Total Class: {totalDays}
-              </p>
-              <p className="text-center text-teal-700 font-medium mt-2">
-                Total Present: {presentDays}
-              </p>
-              <p className="text-center text-teal-700 font-medium mt-2">
-                Total Absent: {absentDays}
-              </p>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                    <div className="text-center">
+                      <p className="text-sm text-gray-600">Percentage</p>
+                      <p className="text-teal-700 font-medium">{attendancePercentage}%</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-gray-600">Total Classes</p>
+                      <p className="text-teal-700 font-medium">{totalDays}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-gray-600">Present</p>
+                      <p className="text-teal-700 font-medium">{presentDays}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm text-gray-600">Absent</p>
+                      <p className="text-teal-700 font-medium">{absentDays}</p>
+                    </div>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -128,7 +172,8 @@ export default function Dashboard() {
               </p>
               <Button
                 variant="outline"
-                className="text-teal-700 border-teal-700 hover:bg-teal-100"
+                className="text-teal-700 border-teal-700 hover:bg-teal-100 w-full"
+                asChild
               >
                 <Link href="/dashboard/results">Go to Results</Link>
               </Button>
@@ -142,19 +187,23 @@ export default function Dashboard() {
               <h2 className="text-xl font-semibold text-teal-800 mb-4 flex items-center gap-2">
                 <Clock className="text-teal-600 h-6 w-6" /> Daily Timetable
               </h2>
-              <ul className="space-y-2">
-                {timetable.map((item, index) => (
-                  <li
-                    key={index}
-                    className="text-gray-700 flex justify-between border-b pb-1"
-                  >
-                    <span>{item.time}</span>
-                    <span className="font-medium text-teal-700">
-                      {item.subject}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              {timetable.length > 0 ? (
+                <ul className="space-y-2">
+                  {timetable.map((item, index) => (
+                    <li
+                      key={index}
+                      className="text-gray-700 flex justify-between border-b pb-2"
+                    >
+                      <span>{item.time}</span>
+                      <span className="font-medium text-teal-700">
+                        {item.subject}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-500 text-center py-4">No timetable available</p>
+              )}
             </CardContent>
           </Card>
 
@@ -169,7 +218,8 @@ export default function Dashboard() {
               </p>
               <Button
                 variant="outline"
-                className="text-teal-700 border-teal-700 hover:bg-teal-100"
+                className="text-teal-700 border-teal-700 hover:bg-teal-100 w-full"
+                asChild
               >
                 <Link href="/dashboard/notice">View Notices</Link>
               </Button>
