@@ -31,8 +31,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
+import { format } from "date-fns";
 import { Student } from "@/model/User";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
@@ -45,12 +44,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-// Extend dayjs with UTC plugin
-dayjs.extend(utc);
-
 interface AttendanceRecord {
   studentId: string;
-  present: boolean | null;
+  present: boolean;
   fullName: string;
   rollNo: string;
 }
@@ -66,12 +62,19 @@ export default function Dashboard() {
   const [checkedStudents, setCheckedStudents] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
-  const [editModeStudentId, setEditModeStudentId] = useState<string | null>(null);
+  const [editModeStudentId, setEditModeStudentId] = useState<string | null>(
+    null
+  );
   const [editStatus, setEditStatus] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState(false);
 
   const isToday = (date: Date) => {
-    return dayjs(date).isSame(dayjs(), 'day');
+    const today = new Date();
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
   };
 
   // Fetch students' data from the API
@@ -94,28 +97,32 @@ export default function Dashboard() {
   const fetchAttendanceByDate = async () => {
     if (!selectedDate) return;
 
+    const today = new Date();
+    // Remove time portion for accurate date comparison
+    const selected = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate()
+    );
+    const current = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+
+    // If selected date is in the future
+    if (selected > current) {
+      setAttendanceData([]);
+      toast.info("No attendance records found for future dates.");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const res = await axios.get(
-        `/api/attendance/view?date=${dayjs(selectedDate).format("YYYY-MM-DD")}`
+        `/api/attendance/view?date=${format(selectedDate, "yyyy-MM-dd")}`
       );
-      
-      if (res.data.success) {
-        // Filter out null records (no attendance marked)
-        const validRecords = res.data.data.filter((record: any) => record.present !== null);
-        setAttendanceData(validRecords.length > 0 ? res.data.data : []);
-        
-        if (validRecords.length === 0) {
-          if (dayjs(selectedDate).isAfter(dayjs())) {
-            toast.info("Cannot view attendance for future dates");
-          } else {
-            toast.info("No attendance records found for this date");
-          }
-        }
-      } else {
-        setAttendanceData([]);
-        toast.error(res.data.message || "Failed to load attendance data");
-      }
+      setAttendanceData(res.data || []);
     } catch (error) {
       console.error("Attendance fetch error:", error);
       toast.error("Failed to load attendance data");
@@ -130,7 +137,7 @@ export default function Dashboard() {
     setIsLoading(true);
     try {
       await axios.post("/api/attendance/mark", {
-        date: dayjs(selectedDate).format("YYYY-MM-DD"),
+        date: format(selectedDate, "yyyy-MM-dd"),
         records: [{ studentId, present }],
       });
 
@@ -246,7 +253,7 @@ export default function Dashboard() {
               <div className="mb-4">
                 <p className="text-sm text-gray-600 mb-1">Selected Date:</p>
                 <p className="font-medium text-teal-700">
-                  {dayjs(selectedDate).format("MMMM D, YYYY")}
+                  {format(selectedDate, "MMMM do, yyyy")}
                 </p>
               </div>
               <Calendar
@@ -266,11 +273,12 @@ export default function Dashboard() {
                 </Button>
                 {!isToday(selectedDate) && (
                   <div className="flex items-center gap-2 rounded-md bg-red-50 p-2 text-red-700 border border-red-200 mt-2">
-                    <XCircle className="w-4 h-4 shrink-0" />
-                    <span className="text-sm font-medium">
-                      You can only mark attendance for today.
-                    </span>
-                  </div>
+                  <XCircle className="w-4 h-4 shrink-0" />
+                  <span className="text-sm font-medium">
+                    You can only mark attendance for today.
+                  </span>
+                </div>
+                
                 )}
                 <Button
                   onClick={() => setViewAttendanceModal(true)}
@@ -324,7 +332,7 @@ export default function Dashboard() {
                       const attendanceRecord = attendanceData.find(
                         (a) => a.studentId === student._id
                       );
-                      const isPresent = attendanceRecord?.present ?? null;
+                      const isPresent = attendanceRecord?.present ?? false;
 
                       return (
                         <TableRow key={student._id}>
@@ -333,7 +341,7 @@ export default function Dashboard() {
                           </TableCell>
                           <TableCell>{student.rollNo}</TableCell>
                           <TableCell>
-                            {isPresent !== null ? (
+                            {attendanceRecord ? (
                               <Badge
                                 variant={isPresent ? "default" : "destructive"}
                                 className="flex items-center gap-1"
@@ -384,7 +392,7 @@ export default function Dashboard() {
                                 variant="outline"
                                 onClick={() => {
                                   setEditModeStudentId(student._id);
-                                  setEditStatus(isPresent === true);
+                                  setEditStatus(isPresent);
                                 }}
                                 className="ml-auto"
                               >
@@ -412,16 +420,10 @@ export default function Dashboard() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Eye className="h-5 w-5" />
-                Attendance Records for {dayjs(selectedDate).format("MMMM D, YYYY")}
+                Attendance Records for {format(selectedDate, "MMMM do, yyyy")}
               </DialogTitle>
               <DialogDescription>
-                {dayjs(selectedDate).isAfter(dayjs()) ? (
-                  <span className="text-yellow-600">Future date - No attendance records available</span>
-                ) : attendanceData.length === 0 ? (
-                  <span className="text-gray-600">No attendance records found</span>
-                ) : (
-                  "View and manage attendance records"
-                )}
+                View and manage attendance records for the selected date
               </DialogDescription>
             </DialogHeader>
             <ScrollArea className="max-h-[60vh]">
@@ -443,15 +445,13 @@ export default function Dashboard() {
                           </TableCell>
                           <TableCell>{record.rollNo}</TableCell>
                           <TableCell>
-                            {record.present !== null ? (
-                              <Badge
-                                variant={record.present ? "default" : "destructive"}
-                              >
-                                {record.present ? "Present" : "Absent"}
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline">Not Marked</Badge>
-                            )}
+                            <Badge
+                              variant={
+                                record.present ? "default" : "destructive"
+                              }
+                            >
+                              {record.present ? "Present" : "Absent"}
+                            </Badge>
                           </TableCell>
                         </TableRow>
                       ))
@@ -461,11 +461,7 @@ export default function Dashboard() {
                           colSpan={3}
                           className="text-center py-8 text-gray-500"
                         >
-                          {dayjs(selectedDate).isAfter(dayjs()) ? (
-                            "Cannot view attendance for future dates"
-                          ) : (
-                            "No attendance records found for this date"
-                          )}
+                          No attendance records found for this date
                         </TableCell>
                       </TableRow>
                     )}
@@ -489,7 +485,7 @@ export default function Dashboard() {
           <DialogContent className="w-full max-w-[95vw] sm:max-w-[625px]">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                Mark Attendance for {dayjs(selectedDate).format("MMMM D, YYYY")}
+                Mark Attendance for {format(selectedDate, "MMMM do, yyyy")}
               </DialogTitle>
               <DialogDescription>
                 Select students who are present today
@@ -555,7 +551,7 @@ export default function Dashboard() {
                   setIsLoading(true);
                   try {
                     await axios.post("/api/attendance/mark", {
-                      date: dayjs(selectedDate).format("YYYY-MM-DD"),
+                      date: format(selectedDate, "yyyy-MM-dd"),
                       records: students.map((student) => ({
                         studentId: student._id,
                         present: checkedStudents.includes(student._id),
