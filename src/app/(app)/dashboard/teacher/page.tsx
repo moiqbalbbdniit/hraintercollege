@@ -102,7 +102,7 @@ export default function Dashboard() {
       
       if (res.data.success) {
         // Filter out null records (no attendance marked)
-        const validRecords = res.data.data.filter((record: any) => record.present !== null);
+        const validRecords = res.data.data.filter((record: AttendanceRecord) => record.present !== null);
         setAttendanceData(validRecords.length > 0 ? res.data.data : []);
         
         if (validRecords.length === 0) {
