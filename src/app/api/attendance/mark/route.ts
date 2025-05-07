@@ -1,48 +1,46 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import AttendanceModel from "@/model/AttendanceModel";
-
-export async function POST(req: Request) {
+import StudentModel from "@/model/User";
+export async function POST(request: Request) {
   await dbConnect();
-  const { date, records } = await req.json();
-
-  if (!date || !Array.isArray(records)) {
-    return NextResponse.json(
-      { success: false, message: "Invalid request data" },
-      { status: 400 }
-    );
-  }
-
+  
   try {
-    // Parse and normalize the date
-    const attendanceDate = new Date(date);
-    attendanceDate.setUTCHours(0, 0, 0, 0);
+    const { date, records } = await request.json();
 
-    // Bulk update operation for efficiency
-    const bulkOps = records.map(record => ({
+    // Get student details first
+    const studentDetails = await StudentModel.find({
+      _id: { $in: records.map((r: any) => r.studentId) }
+    });
+
+    // Prepare bulk operations
+    const bulkOps = records.map((record: any) => ({
       updateOne: {
-        filter: { 
-          studentId: record.studentId, 
-          date: attendanceDate 
+        filter: {
+          studentId: record.studentId,
+          date: date
         },
-        update: { 
-          $set: { 
+        update: {
+          $set: {
             present: record.present,
-            date: attendanceDate
-          } 
+            fullName: studentDetails.find(s => s._id.equals(record.studentId))?.fullName,
+            rollNo: studentDetails.find(s => s._id.equals(record.studentId))?.rollNo
+          }
         },
         upsert: true
       }
     }));
 
+    // Execute bulk write
     await AttendanceModel.bulkWrite(bulkOps);
 
-    return NextResponse.json({ 
-      success: true, 
-      message: "Attendance marked successfully" 
+    return NextResponse.json({
+      success: true,
+      message: "Attendance marked successfully"
     });
+
   } catch (error) {
-    console.error("Attendance error:", error);
+    console.error("Error marking attendance:", error);
     return NextResponse.json(
       { success: false, message: "Error marking attendance" },
       { status: 500 }

@@ -12,7 +12,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-
 import {
   BookOpen,
   Bell,
@@ -45,7 +44,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-// Extend dayjs with UTC plugin
 dayjs.extend(utc);
 
 interface AttendanceRecord {
@@ -69,12 +67,10 @@ export default function Dashboard() {
   const [editModeStudentId, setEditModeStudentId] = useState<string | null>(null);
   const [editStatus, setEditStatus] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAttendanceMarked, setIsAttendanceMarked] = useState(false);
 
-  const isToday = (date: Date) => {
-    return dayjs(date).isSame(dayjs(), 'day');
-  };
+  const isToday = (date: Date) => dayjs(date).isSame(dayjs(), 'day');
 
-  // Fetch students' data from the API
   const fetchStudents = async () => {
     setIsLoading(true);
     try {
@@ -83,17 +79,14 @@ export default function Dashboard() {
       setFilteredStudents(res.data.students);
       setNumberofstudents(res.data.students.length);
     } catch (error) {
-      console.error("Student fetch error:", error);
       toast.error("Failed to fetch students");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Fetch attendance data for a specific date
   const fetchAttendanceByDate = async () => {
     if (!selectedDate) return;
-
     setIsLoading(true);
     try {
       const res = await axios.get(
@@ -101,66 +94,101 @@ export default function Dashboard() {
       );
       
       if (res.data.success) {
-        // Filter out null records (no attendance marked)
-        const validRecords = res.data.data.filter((record: AttendanceRecord) => record.present !== null);
-        setAttendanceData(validRecords.length > 0 ? res.data.data : []);
-        
-        if (validRecords.length === 0) {
-          if (dayjs(selectedDate).isAfter(dayjs())) {
-            toast.info("Cannot view attendance for future dates");
-          } else {
-            toast.info("No attendance records found for this date");
-          }
-        }
-      } else {
-        setAttendanceData([]);
-        toast.error(res.data.message || "Failed to load attendance data");
+        setAttendanceData(res.data.data);
+        // Update the marked status based on actual data
+        const allStudentsMarked = res.data.data.length >= students.length;
+        setIsAttendanceMarked(allStudentsMarked);
       }
     } catch (error) {
-      console.error("Attendance fetch error:", error);
       toast.error("Failed to load attendance data");
-      setAttendanceData([]);
+      setIsAttendanceMarked(false);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Update attendance for a student
+  const checkAttendanceStatus = async () => {
+    try {
+      const res = await axios.get(
+        `/api/attendance/check?date=${dayjs(selectedDate).format("YYYY-MM-DD")}`
+      );
+      
+      // Only mark as attended if we have records for ALL students
+      if (res.data.success) {
+        const allStudentsMarked = res.data.count >= students.length;
+        setIsAttendanceMarked(allStudentsMarked);
+      }
+    } catch (error) {
+      console.error("Error checking attendance:", error);
+      setIsAttendanceMarked(false); // Default to false on error
+    }
+  };
+
   const updateAttendance = async (studentId: string, present: boolean) => {
     setIsLoading(true);
     try {
-      await axios.post("/api/attendance/mark", {
+      const response = await axios.post("/api/attendance/mark", {
         date: dayjs(selectedDate).format("YYYY-MM-DD"),
-        records: [{ studentId, present }],
+        records: [{ studentId, present }]
       });
-
-      // Update local state
-      setAttendanceData((prev) =>
-        prev.map((record) =>
-          record.studentId === studentId ? { ...record, present } : record
-        )
-      );
-
-      toast.success("Attendance updated!");
-      setEditModeStudentId(null);
-    } catch {
+      
+      if (response.data.success) {
+        await fetchAttendanceByDate();
+        toast.success("Attendance updated!");
+        setEditModeStudentId(null);
+      }
+    } catch (error) {
       toast.error("Failed to update attendance");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle date change
   const handleDateChange = (day: Date | undefined) => {
-    if (day) {
-      setSelectedDate(day);
-    }
+    if (day) setSelectedDate(day);
   };
 
-  // Mark attendance for all students
-  const markAllAttendance = async (present: boolean) => {
-    const allStudentIds = students.map((student) => student._id);
-    setCheckedStudents(present ? allStudentIds : []);
+  const markAllAttendance = (present: boolean) => {
+    setCheckedStudents(present ? students.map(student => student._id) : []);
+  };
+
+  const markAttendance = async () => {
+    setIsLoading(true);
+    try {
+      // First verify no attendance exists
+      const checkRes = await axios.get(
+        `/api/attendance/check?date=${dayjs(selectedDate).format("YYYY-MM-DD")}`
+      );
+      
+      if (checkRes.data.exists) {
+        toast.warning("Attendance already marked for today!");
+        setIsAttendanceMarked(true);
+        return;
+      }
+  
+      // Mark attendance for selected students
+      const response = await axios.post("/api/attendance/mark", {
+        date: dayjs(selectedDate).format("YYYY-MM-DD"),
+        records: students.map(student => ({
+          studentId: student._id,
+          present: checkedStudents.includes(student._id),
+          fullName: student.fullName,  // Include student details
+          rollNo: student.rollNo
+        })),
+      });
+  
+      if (response.data.success) {
+        toast.success("Attendance marked successfully!");
+        setOpenModal(false);
+        // Refresh the data
+        await fetchAttendanceByDate();
+      }
+    } catch (error) {
+      toast.error("Failed to mark attendance");
+      setIsAttendanceMarked(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -168,20 +196,20 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if (viewAttendanceModal) {
-      fetchAttendanceByDate();
-    }
+    if (viewAttendanceModal) fetchAttendanceByDate();
   }, [selectedDate, viewAttendanceModal]);
+
+  useEffect(() => {
+    checkAttendanceStatus();
+  }, [selectedDate]);
 
   useEffect(() => {
     const term = searchTerm.toLowerCase();
     setFilteredStudents(
-      students.filter(
-        (student) =>
-          student.fullName.toLowerCase().includes(term) ||
-          student.rollNo.toString().includes(term)
-      )
-    );
+      students.filter(student =>
+        student.fullName.toLowerCase().includes(term) ||
+        student.rollNo.toString().includes(term)
+    ));
   }, [searchTerm, students]);
 
   return (
@@ -190,16 +218,14 @@ export default function Dashboard() {
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-teal-800">
-              Welcome, {`${session?.user?.fullName}` || "Teacher"} 🧑🏻‍🏫
+              Welcome, {session?.user?.fullName || "Teacher"} 🧑🏻‍🏫
             </h1>
-            <p className="text-teal-700 mt-1">
-              Here&#39;s your dashboard overview.
-            </p>
+            <p className="text-teal-700 mt-1">Here's your dashboard overview.</p>
           </div>
           <Button
             onClick={() => signOut()}
             variant="ghost"
-            className="text-teal-700 hover:bg-teal-100 flex items-center gap-2 self-end md:self-auto"
+            className="text-teal-700 hover:bg-teal-100 flex items-center gap-2"
           >
             <LogOut className="h-4 w-4" />
             <span className="hidden md:inline">Logout</span>
@@ -220,9 +246,7 @@ export default function Dashboard() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Class:</span>
-                <span className="font-medium">
-                  {session?.user?.assignedClass}
-                </span>
+                <span className="font-medium">{session?.user?.assignedClass}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Section:</span>
@@ -259,17 +283,14 @@ export default function Dashboard() {
                 <Button
                   onClick={() => setOpenModal(true)}
                   className="bg-teal-700 hover:bg-teal-800 text-white"
-                  disabled={!isToday(selectedDate)}
+                  disabled={!isToday(selectedDate) || isAttendanceMarked}
                 >
-                  <span className="hidden sm:inline">Mark Attendance</span>
-                  <span className="sm:hidden">Mark</span>
+                  {isAttendanceMarked ? "Attendance Marked" : "Mark Attendance"}
                 </Button>
                 {!isToday(selectedDate) && (
-                  <div className="flex items-center gap-2 rounded-md bg-red-50 p-2 text-red-700 border border-red-200 mt-2">
-                    <XCircle className="w-4 h-4 shrink-0" />
-                    <span className="text-sm font-medium">
-                      You can only mark attendance for today.
-                    </span>
+                  <div className="flex items-center gap-2 rounded-md bg-red-50 p-2 text-red-700 border border-red-200">
+                    <XCircle className="w-4 h-4" />
+                    <span className="text-sm">Only today's attendance can be marked</span>
                   </div>
                 )}
                 <Button
@@ -309,182 +330,136 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="rounded-md border">
-              <div className="relative overflow-x-auto">
-                <Table>
-                  <TableHeader className="bg-teal-50">
-                    <TableRow>
-                      <TableHead>Student Name</TableHead>
-                      <TableHead>Roll No</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredStudents.map((student) => {
-                      const attendanceRecord = attendanceData.find(
-                        (a) => a.studentId === student._id
-                      );
-                      const isPresent = attendanceRecord?.present ?? null;
-
-                      return (
-                        <TableRow key={student._id}>
-                          <TableCell className="font-medium">
-                            {student.fullName}
-                          </TableCell>
-                          <TableCell>{student.rollNo}</TableCell>
-                          <TableCell>
-                            {isPresent !== null ? (
-                              <Badge
-                                variant={isPresent ? "default" : "destructive"}
-                                className="flex items-center gap-1"
+              <Table>
+                <TableHeader className="bg-teal-50">
+                  <TableRow>
+                    <TableHead>Student Name</TableHead>
+                    <TableHead>Roll No</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredStudents.map((student) => {
+                    const record = attendanceData.find(a => a.studentId === student._id);
+                    const isPresent = record?.present ?? null;
+                    return (
+                      <TableRow key={student._id}>
+                        <TableCell className="font-medium">{student.fullName}</TableCell>
+                        <TableCell>{student.rollNo}</TableCell>
+                        <TableCell>
+                          {isPresent !== null ? (
+                            <Badge variant={isPresent ? "default" : "destructive"}>
+                              {isPresent ? "Present" : "Absent"}
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline">Not Marked</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {editModeStudentId === student._id ? (
+                            <div className="flex gap-2 justify-end">
+                              <select
+                                value={editStatus ? "present" : "absent"}
+                                onChange={(e) => setEditStatus(e.target.value === "present")}
+                                className="border rounded px-2 py-1 text-sm"
                               >
-                                {isPresent ? (
-                                  <CheckCircle2 className="h-3 w-3" />
-                                ) : (
-                                  <XCircle className="h-3 w-3" />
-                                )}
-                                <span className="hidden sm:inline">
-                                  {isPresent ? "Present" : "Absent"}
-                                </span>
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline">Not Marked</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {editModeStudentId === student._id ? (
-                              <div className="flex gap-2 justify-end">
-                                <select
-                                  className="border rounded px-2 py-1 text-sm max-w-[100px]"
-                                  value={editStatus ? "present" : "absent"}
-                                  onChange={(e) =>
-                                    setEditStatus(e.target.value === "present")
-                                  }
-                                >
-                                  <option value="present">Present</option>
-                                  <option value="absent">Absent</option>
-                                </select>
-                                <Button
-                                  size="sm"
-                                  onClick={() =>
-                                    updateAttendance(student._id, editStatus)
-                                  }
-                                  disabled={isLoading}
-                                >
-                                  {isLoading ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <Save className="h-4 w-4" />
-                                  )}
-                                </Button>
-                              </div>
-                            ) : (
+                                <option value="present">Present</option>
+                                <option value="absent">Absent</option>
+                              </select>
                               <Button
                                 size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  setEditModeStudentId(student._id);
-                                  setEditStatus(isPresent === true);
-                                }}
-                                className="ml-auto"
+                                onClick={() => updateAttendance(student._id, editStatus)}
+                                disabled={isLoading}
                               >
-                                <Edit className="h-4 w-4 md:mr-1" />
-                                <span className="hidden md:inline">Edit</span>
+                                {isLoading ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Save className="h-4 w-4" />
+                                )}
                               </Button>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
+                            </div>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                const record = attendanceData.find(a => a.studentId === student._id);
+                                setEditModeStudentId(student._id);
+                                setEditStatus(record?.present ?? true);
+                              }}
+                            >
+                              <Edit className="h-4 w-4 md:mr-1" />
+                              <span className="hidden md:inline">Edit</span>
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>
 
-        {/* View Attendance Modal */}
-        <Dialog
-          open={viewAttendanceModal}
-          onOpenChange={setViewAttendanceModal}
-        >
+        <Dialog open={viewAttendanceModal} onOpenChange={setViewAttendanceModal}>
           <DialogContent className="w-full max-w-[95vw] sm:max-w-[625px]">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Eye className="h-5 w-5" />
-                Attendance Records for {dayjs(selectedDate).format("MMMM D, YYYY")}
+                Attendance for {dayjs(selectedDate).format("MMMM D, YYYY")}
               </DialogTitle>
               <DialogDescription>
-                {dayjs(selectedDate).isAfter(dayjs()) ? (
-                  <span className="text-yellow-600">Future date - No attendance records available</span>
-                ) : attendanceData.length === 0 ? (
-                  <span className="text-gray-600">No attendance records found</span>
-                ) : (
-                  "View and manage attendance records"
-                )}
+                {dayjs(selectedDate).isAfter(dayjs())
+                  ? "Future date - No records available"
+                  : attendanceData.length === 0
+                  ? "No attendance records found"
+                  : "Viewing attendance records"}
               </DialogDescription>
             </DialogHeader>
             <ScrollArea className="max-h-[60vh]">
-              <div className="relative overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Student</TableHead>
-                      <TableHead>Roll No</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {attendanceData.length > 0 ? (
-                      attendanceData.map((record) => (
-                        <TableRow key={record.studentId}>
-                          <TableCell className="font-medium">
-                            {record.fullName}
-                          </TableCell>
-                          <TableCell>{record.rollNo}</TableCell>
-                          <TableCell>
-                            {record.present !== null ? (
-                              <Badge
-                                variant={record.present ? "default" : "destructive"}
-                              >
-                                {record.present ? "Present" : "Absent"}
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline">Not Marked</Badge>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={3}
-                          className="text-center py-8 text-gray-500"
-                        >
-                          {dayjs(selectedDate).isAfter(dayjs()) ? (
-                            "Cannot view attendance for future dates"
-                          ) : (
-                            "No attendance records found for this date"
-                          )}
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Student</TableHead>
+                    <TableHead>Roll No</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {attendanceData.length > 0 ? (
+                    attendanceData.map((record) => (
+                      <TableRow key={record.studentId}>
+                        <TableCell className="font-medium">{record.fullName}</TableCell>
+                        <TableCell>{record.rollNo}</TableCell>
+                        <TableCell>
+                          <Badge variant={record.present ? "default" : "destructive"}>
+                            {record.present ? "Present" : "Absent"}
+                          </Badge>
                         </TableCell>
                       </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center py-8 text-gray-500">
+                        {dayjs(selectedDate).isAfter(dayjs())
+                          ? "Cannot view attendance for future dates"
+                          : "No attendance records found"}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
             </ScrollArea>
             <DialogFooter>
-              <Button
-                onClick={() => setViewAttendanceModal(false)}
-                className="w-full sm:w-auto"
-              >
+              <Button onClick={() => setViewAttendanceModal(false)}>
                 Close
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
-        {/* Mark Attendance Modal */}
         <Dialog open={openModal} onOpenChange={setOpenModal}>
           <DialogContent className="w-full max-w-[95vw] sm:max-w-[625px]">
             <DialogHeader>
@@ -492,7 +467,9 @@ export default function Dashboard() {
                 Mark Attendance for {dayjs(selectedDate).format("MMMM D, YYYY")}
               </DialogTitle>
               <DialogDescription>
-                Select students who are present today
+                {isAttendanceMarked
+                  ? "Attendance already marked for today"
+                  : "Select students who are present today"}
               </DialogDescription>
             </DialogHeader>
             <div className="flex gap-2 mb-4">
@@ -500,7 +477,7 @@ export default function Dashboard() {
                 variant="outline"
                 size="sm"
                 onClick={() => markAllAttendance(true)}
-                className="flex-1 sm:flex-none"
+                disabled={isAttendanceMarked}
               >
                 Mark All Present
               </Button>
@@ -508,76 +485,56 @@ export default function Dashboard() {
                 variant="outline"
                 size="sm"
                 onClick={() => markAllAttendance(false)}
-                className="flex-1 sm:flex-none"
+                disabled={isAttendanceMarked}
               >
                 Mark All Absent
               </Button>
             </div>
             <ScrollArea className="max-h-[60vh]">
-              <div className="relative overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Present</TableHead>
-                      <TableHead>Student Name</TableHead>
-                      <TableHead>Roll No</TableHead>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Present</TableHead>
+                    <TableHead>Student Name</TableHead>
+                    <TableHead>Roll No</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {students.map((student) => (
+                    <TableRow key={student._id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={checkedStudents.includes(student._id)}
+                          onCheckedChange={(checked) => {
+                            if (isAttendanceMarked) return;
+                            setCheckedStudents(prev =>
+                              checked
+                                ? [...prev, student._id]
+                                : prev.filter(id => id !== student._id)
+                            );
+                          }}
+                          disabled={isAttendanceMarked}
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium">{student.fullName}</TableCell>
+                      <TableCell>{student.rollNo}</TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {students.map((student) => (
-                      <TableRow key={student._id}>
-                        <TableCell>
-                          <Checkbox
-                            checked={checkedStudents.includes(student._id)}
-                            onCheckedChange={(checked) => {
-                              setCheckedStudents((prev) =>
-                                checked
-                                  ? [...prev, student._id]
-                                  : prev.filter((id) => id !== student._id)
-                              );
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {student.fullName}
-                        </TableCell>
-                        <TableCell>{student.rollNo}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                  ))}
+                </TableBody>
+              </Table>
             </ScrollArea>
             <DialogFooter>
               <Button
-                type="button"
-                onClick={async () => {
-                  setIsLoading(true);
-                  try {
-                    await axios.post("/api/attendance/mark", {
-                      date: dayjs(selectedDate).format("YYYY-MM-DD"),
-                      records: students.map((student) => ({
-                        studentId: student._id,
-                        present: checkedStudents.includes(student._id),
-                      })),
-                    });
-                    toast.success("Attendance marked successfully!");
-                    setOpenModal(false);
-                    fetchAttendanceByDate();
-                  } catch {
-                    toast.error("Failed to mark attendance");
-                  } finally {
-                    setIsLoading(false);
-                  }
-                }}
-                disabled={isLoading}
-                className="w-full sm:w-auto"
+                onClick={markAttendance}
+                disabled={isLoading || isAttendanceMarked}
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Saving...
                   </>
+                ) : isAttendanceMarked ? (
+                  "Attendance Marked"
                 ) : (
                   "Save Attendance"
                 )}
