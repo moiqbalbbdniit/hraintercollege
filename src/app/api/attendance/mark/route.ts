@@ -10,11 +10,11 @@ export async function POST(request: Request) {
 
     // Get student details first
     const studentDetails = await StudentModel.find({
-      _id: { $in: records.map((r: any) => r.studentId) }
+      _id: { $in: records.map((r: { studentId: string }) => r.studentId) }
     });
 
     // Prepare bulk operations
-    const bulkOps = records.map((record: any) => ({
+    const bulkOps = records.map((record: { studentId: string; present: boolean }) => ({
       updateOne: {
         filter: {
           studentId: record.studentId,

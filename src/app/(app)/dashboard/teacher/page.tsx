@@ -19,7 +19,7 @@ import {
   CalendarDays,
   Eye,
   Users,
-  CheckCircle2,
+  
   XCircle,
   Edit,
   Save,
@@ -79,6 +79,7 @@ export default function Dashboard() {
       setFilteredStudents(res.data.students);
       setNumberofstudents(res.data.students.length);
     } catch (error) {
+      console.error("Error fetching students:", error);
       toast.error("Failed to fetch students");
     } finally {
       setIsLoading(false);
@@ -100,6 +101,7 @@ export default function Dashboard() {
         setIsAttendanceMarked(allStudentsMarked);
       }
     } catch (error) {
+      console.error("Error fetching attendance data:", error);
       toast.error("Failed to load attendance data");
       setIsAttendanceMarked(false);
     } finally {
@@ -138,6 +140,7 @@ export default function Dashboard() {
         setEditModeStudentId(null);
       }
     } catch (error) {
+      console.error("Error updating attendance:", error);
       toast.error("Failed to update attendance");
     } finally {
       setIsLoading(false);
@@ -184,6 +187,7 @@ export default function Dashboard() {
         await fetchAttendanceByDate();
       }
     } catch (error) {
+      console.error("Error marking attendance:", error);
       toast.error("Failed to mark attendance");
       setIsAttendanceMarked(false);
     } finally {
@@ -220,7 +224,7 @@ export default function Dashboard() {
             <h1 className="text-2xl md:text-3xl font-bold text-teal-800">
               Welcome, {session?.user?.fullName || "Teacher"} 🧑🏻‍🏫
             </h1>
-            <p className="text-teal-700 mt-1">Here's your dashboard overview.</p>
+            <p className="text-teal-700 mt-1">Here&#39;s your dashboard overview.</p>
           </div>
           <Button
             onClick={() => signOut()}
@@ -290,7 +294,7 @@ export default function Dashboard() {
                 {!isToday(selectedDate) && (
                   <div className="flex items-center gap-2 rounded-md bg-red-50 p-2 text-red-700 border border-red-200">
                     <XCircle className="w-4 h-4" />
-                    <span className="text-sm">Only today's attendance can be marked</span>
+                    <span className="text-sm">Only today&#39;s attendance can be marked</span>
                   </div>
                 )}
                 <Button

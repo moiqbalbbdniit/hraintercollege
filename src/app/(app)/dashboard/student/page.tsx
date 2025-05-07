@@ -38,6 +38,7 @@ export default function StudentDashboard() {
         const res = await axios.get("/api/attendance/student");
         setAttendance(res.data || {});
       } catch (err) {
+        console.log(err);
         toast.error("Failed to load attendance");
       } finally {
         setIsLoading(false);
@@ -49,6 +50,7 @@ export default function StudentDashboard() {
         const res = await axios.get("/api/timetable");
         setTimetable(res.data.timetable || []);
       } catch (err) {
+        console.log(err);
         toast.error("Failed to load timetable");
       }
     };
@@ -107,7 +109,7 @@ export default function StudentDashboard() {
                           />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(value: any) => `${value} days`} />
+                      <Tooltip formatter={(value: number) => `${value} days`} />
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="grid grid-cols-2 gap-4">
