@@ -82,6 +82,36 @@ export default function StudentDashboard() {
             Track your attendance and academic progress.
           </p>
         </header>
+        {session?.user && (
+          <Card className="mb-6 bg-white shadow-md rounded-2xl">
+            <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <p className="text-sm text-gray-500">Full Name</p>
+                <p className="font-semibold text-teal-800">
+                  {session.user.fullName}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Roll Number</p>
+                <p className="font-semibold text-teal-800">
+                  {session.user.rollNo}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Class</p>
+                <p className="font-semibold text-teal-800">
+                  {session.user.studentClass}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Section</p>
+                <p className="font-semibold text-teal-800">
+                  {session.user.section}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <Card className="col-span-1 md:col-span-2 bg-white shadow-md rounded-2xl">
