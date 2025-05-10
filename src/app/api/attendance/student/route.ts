@@ -15,17 +15,22 @@ export async function GET() {
     );
   }
 
+  console.log("session", session.user.email); // Use the email to fetch attendance
+
   try {
+    // Fetch the student's attendance records based on their email (using email in the `studentId` field)
     const attendanceRecords = await AttendanceModel.find({
-      studentId: session.user._id
-    }).sort({ date: -1 });
+      email: session.user.email,  // Using the email as studentId
+    });
+
+    const totalDays = attendanceRecords.length;
+    const presentDays = attendanceRecords.filter((r) => r.present).length;
+    const absentDays = totalDays - presentDays;
 
     return NextResponse.json({
-      success: true,
-      attendance: attendanceRecords.map(record => ({
-        date: record.date.toISOString().split('T')[0],
-        present: record.present
-      }))
+      totalDays,
+      presentDays,
+      absentDays,
     });
   } catch (error) {
     console.error("Error fetching attendance:", error);

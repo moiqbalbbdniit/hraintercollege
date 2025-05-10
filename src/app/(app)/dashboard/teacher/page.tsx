@@ -47,7 +47,7 @@ import {
 dayjs.extend(utc);
 
 interface AttendanceRecord {
-  studentId: string;
+  email: string;
   present: boolean | null;
   fullName: string;
   rollNo: string;
@@ -126,12 +126,12 @@ export default function Dashboard() {
     }
   };
 
-  const updateAttendance = async (studentId: string, present: boolean) => {
+  const updateAttendance = async (email: string, present: boolean) => {
     setIsLoading(true);
     try {
       const response = await axios.post("/api/attendance/mark", {
         date: dayjs(selectedDate).format("YYYY-MM-DD"),
-        records: [{ studentId, present }]
+        records: [{ email, present }]
       });
       
       if (response.data.success) {
@@ -152,7 +152,7 @@ export default function Dashboard() {
   };
 
   const markAllAttendance = (present: boolean) => {
-    setCheckedStudents(present ? students.map(student => student._id) : []);
+    setCheckedStudents(present ? students.map(student => student.email) : []);
   };
 
   const markAttendance = async () => {
@@ -173,8 +173,8 @@ export default function Dashboard() {
       const response = await axios.post("/api/attendance/mark", {
         date: dayjs(selectedDate).format("YYYY-MM-DD"),
         records: students.map(student => ({
-          studentId: student._id,
-          present: checkedStudents.includes(student._id),
+          email: student.email,
+          present: checkedStudents.includes(student.email),
           fullName: student.fullName,  // Include student details
           rollNo: student.rollNo
         })),
@@ -345,10 +345,10 @@ export default function Dashboard() {
                 </TableHeader>
                 <TableBody>
                   {filteredStudents.map((student) => {
-                    const record = attendanceData.find(a => a.studentId === student._id);
+                    const record = attendanceData.find(a => a.email === student.email);
                     const isPresent = record?.present ?? null;
                     return (
-                      <TableRow key={student._id}>
+                      <TableRow key={student.email}>
                         <TableCell className="font-medium">{student.fullName}</TableCell>
                         <TableCell>{student.rollNo}</TableCell>
                         <TableCell>
@@ -361,7 +361,7 @@ export default function Dashboard() {
                           )}
                         </TableCell>
                         <TableCell className="text-right">
-                          {editModeStudentId === student._id ? (
+                          {editModeStudentId === student.email ? (
                             <div className="flex gap-2 justify-end">
                               <select
                                 value={editStatus ? "present" : "absent"}
@@ -373,7 +373,7 @@ export default function Dashboard() {
                               </select>
                               <Button
                                 size="sm"
-                                onClick={() => updateAttendance(student._id, editStatus)}
+                                onClick={() => updateAttendance(student.email, editStatus)}
                                 disabled={isLoading}
                               >
                                 {isLoading ? (
@@ -388,8 +388,8 @@ export default function Dashboard() {
                               size="sm"
                               variant="outline"
                               onClick={() => {
-                                const record = attendanceData.find(a => a.studentId === student._id);
-                                setEditModeStudentId(student._id);
+                                const record = attendanceData.find(a => a.email === student.email);
+                                setEditModeStudentId(student.email);
                                 setEditStatus(record?.present ?? true);
                               }}
                             >
@@ -434,7 +434,7 @@ export default function Dashboard() {
                 <TableBody>
                   {attendanceData.length > 0 ? (
                     attendanceData.map((record) => (
-                      <TableRow key={record.studentId}>
+                      <TableRow key={record.email}>
                         <TableCell className="font-medium">{record.fullName}</TableCell>
                         <TableCell>{record.rollNo}</TableCell>
                         <TableCell>
@@ -505,16 +505,16 @@ export default function Dashboard() {
                 </TableHeader>
                 <TableBody>
                   {students.map((student) => (
-                    <TableRow key={student._id}>
+                    <TableRow key={student.email}>
                       <TableCell>
                         <Checkbox
-                          checked={checkedStudents.includes(student._id)}
+                          checked={checkedStudents.includes(student.email)}
                           onCheckedChange={(checked) => {
                             if (isAttendanceMarked) return;
                             setCheckedStudents(prev =>
                               checked
-                                ? [...prev, student._id]
-                                : prev.filter(id => id !== student._id)
+                                ? [...prev, student.email]
+                                : prev.filter(email => email !== student.email)
                             );
                           }}
                           disabled={isAttendanceMarked}

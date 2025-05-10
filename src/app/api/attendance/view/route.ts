@@ -10,15 +10,15 @@ export async function GET(request: Request) {
 
   try {
     const records = await AttendanceModel.find({ date })
-      .populate('studentId', 'fullName rollNo');
+      .populate('email', 'fullName rollNo');
 
     return NextResponse.json({
       success: true,
       data: records.map(record => ({
-        studentId: record.studentId._id,
+        email: record.email,
         present: record.present,
-        fullName: record.studentId.fullName,
-        rollNo: record.studentId.rollNo
+        fullName: record.fullName,
+        rollNo: record.rollNo
       }))
     });
 

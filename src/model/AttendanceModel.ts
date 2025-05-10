@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 
 export interface Attendance extends Document {
-    studentId: mongoose.Schema.Types.ObjectId;
+    email: string;
     date: string; // YYYY-MM-DD
     present: boolean;
     fullName: string;
@@ -9,10 +9,10 @@ export interface Attendance extends Document {
 }
 
 const AttendanceSchema = new Schema<Attendance>({
-  studentId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Student',
+  email: {
+    type: String,
     required: true,
+    unique: true,
   },
   date: {
     type: String,
@@ -35,6 +35,6 @@ const AttendanceSchema = new Schema<Attendance>({
 });
 
 // Add compound index
-AttendanceSchema.index({ studentId: 1, date: 1 }, { unique: true });
+AttendanceSchema.index({ email: 1, date: 1 }, { unique: true });
 
 export default mongoose.models.Attendance || mongoose.model("Attendance", AttendanceSchema);

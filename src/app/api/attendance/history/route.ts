@@ -5,12 +5,12 @@ import AttendanceModel from "@/model/AttendanceModel";
 export async function GET(req: Request) {
   await dbConnect();
   const { searchParams } = new URL(req.url);
-  const studentId = searchParams.get("studentId");
+  const email = searchParams.get("email");
 
-  if (!studentId) return NextResponse.json({ error: "Missing studentId" }, { status: 400 });
+  if (!email) return NextResponse.json({ error: "Missing Email" }, { status: 400 });
 
   try {
-    const history = await AttendanceModel.find({ studentId }).sort({ date: -1 });
+    const history = await AttendanceModel.find({ email }).sort({ date: -1 });
     return NextResponse.json({ success: true, history });
   } catch (error) {
     console.error("Error fetching attendance history:", error); 

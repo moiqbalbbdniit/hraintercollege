@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import AttendanceModel from "@/model/AttendanceModel";
-import mongoose from "mongoose";
+
 
 export async function POST(request: Request) {
   await dbConnect();
   
   try {
-    const { date, studentId, present } = await request.json();
+    const { date, email, present } = await request.json();
 
     // Validate input
-    if (!date || !studentId || present === undefined) {
+    if (!date || !email || present === undefined) {
       return NextResponse.json(
         { success: false, message: "Missing required fields" },
         { status: 400 }
@@ -18,12 +18,12 @@ export async function POST(request: Request) {
     }
 
     // Convert to proper types
-    const studentObjectId = new mongoose.Types.ObjectId(studentId);
+    // const studentObjectId = new mongoose.Types.ObjectId(studentId);
 
     // Update or create attendance record
     const result = await AttendanceModel.findOneAndUpdate(
       {
-        studentId: studentObjectId,
+        email: email,
         date: date // YYYY-MM-DD format
       },
       {

@@ -1,4 +1,5 @@
 "use client";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, BookOpen, Bell, LogOut, Clock } from "lucide-react";
@@ -6,8 +7,8 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { toast } from "sonner";
+import axios from "axios"; // Import Axios
 
 const COLORS = ["#0f766e", "#f87171"]; // Teal for present, Red for absent
 
@@ -33,30 +34,32 @@ export default function StudentDashboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAttendance = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get("/api/attendance/student");
-        setAttendance(res.data || {});
+        // Fetch attendance with Axios
+        const attendanceRes = await axios.get("/api/attendance/student", {
+          withCredentials: true, // Include credentials in the request (like cookies)
+        });
+        setAttendance({
+          totalDays: attendanceRes.data.totalDays || 0,
+          presentDays: attendanceRes.data.presentDays || 0,
+          absentDays: attendanceRes.data.absentDays || 0,
+        });
+
+        // Fetch timetable with Axios
+        const timetableRes = await axios.get("/api/timetable", {
+          withCredentials: true,
+        });
+        setTimetable(timetableRes.data.timetable || []);
       } catch (err) {
-        console.log(err);
-        toast.error("Failed to load attendance");
+        console.error(err);
+        toast.error(err instanceof Error ? err.message : "Failed to load data");
       } finally {
         setIsLoading(false);
       }
     };
 
-    const fetchTimetable = async () => {
-      try {
-        const res = await axios.get("/api/timetable");
-        setTimetable(res.data.timetable || []);
-      } catch (err) {
-        console.log(err);
-        toast.error("Failed to load timetable");
-      }
-    };
-
-    fetchAttendance();
-    fetchTimetable();
+    fetchData();
   }, []);
 
   const doughnutData = [
