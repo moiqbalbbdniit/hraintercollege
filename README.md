@@ -32,19 +32,171 @@ A fully responsive and modern educational website for **HRA Inter College**, des
 
 ## 📁 Project Structure
 
-app/
-├── layout.tsx # Root layout
-├── page.tsx # Homepage
-└── about, contact, etc # Routes
-components/
-├── Navbar.tsx
-├── Footer.tsx
-├── HeroSection.tsx
-└── Card.tsx, Section.tsx, etc.
 public/
-└── college-logo.png, gallery images
-styles/
-└── globals.css
+    ├── images/
+        ├── about/
+            ├── hracampus.jpg
+            ├── principal.png
+            └── studentphoto.jpg
+        ├── gallery/
+            ├── awardfromdm.jpg
+            ├── awareness.jpg
+            ├── culturalevent.jpg
+            ├── hostingflagatbuilding.jpg
+            ├── independenceday.jpg
+            ├── newscut.jpg
+            ├── nss.jpg
+            ├── studentassembly.jpg
+            ├── studentfarewell.jpg
+            └── topperceleberation.jpg
+        ├── ansarkhan.jpg
+        ├── campus1.jpg
+        ├── campus2.jpg
+        ├── campus3.jpg
+        ├── campus4.jpg
+        ├── campus5.jpg
+        ├── director.jpg
+        ├── faiz.jpg
+        ├── hero.jpg
+        ├── iqbal
+        ├── iqbalphoto.png
+        ├── logo.png
+        ├── mainbanner.jpg
+        ├── nadeem.jpg
+        ├── topper1.jpg
+        ├── topper2.jpg
+        └── topper3.jpg
+    ├── favicon.ico
+    ├── file.svg
+    ├── globe.svg
+    ├── next.svg
+    ├── vercel.svg
+    └── window.svg
+src/
+    ├── app/
+        ├── (app)/
+            ├── dashboard/
+                ├── student/
+                    └── page.tsx
+                └── teacher/
+                    └── page.tsx
+            ├── layout.tsx
+            └── page.tsx
+        ├── (auth)/
+            ├── sign-in/
+                └── page.tsx
+            ├── studentRegister/
+                └── page.tsx
+            └── teacherRegister/
+                └── page.tsx
+        ├── about/
+            └── page.tsx
+        ├── academics/
+            └── page.tsx
+        ├── admissions/
+            └── page.tsx
+        ├── api/
+            ├── attendance/
+                ├── check/
+                    └── route.ts
+                ├── history/
+                    └── route.ts
+                ├── mark/
+                    └── route.ts
+                ├── student/
+                    └── route.ts
+                ├── update/
+                    └── route.ts
+                └── view/
+                    └── route.ts
+            ├── auth/
+                └── [...nextauth]/
+                    ├── option.ts
+                    └── route.ts
+            ├── dummyData/
+                └── route.ts
+            ├── signup/
+                ├── studentRegister/
+                    └── route.ts
+                └── teacherRegister/
+                    └── route.ts
+            ├── teacher/
+                └── studentDetails/
+                    └── route.ts
+            └── verifyCode/
+                └── route.ts
+        ├── contact/
+            └── page.tsx
+        ├── examination/
+            └── page.tsx
+        ├── gallery/
+            ├── layout.tsx
+            └── page.tsx
+        ├── results/
+            └── page.tsx
+        ├── testing/
+            ├── dummyData/
+                └── page.tsx
+            └── page.tsx
+        ├── verify/
+            └── [email]/
+                └── page.tsx
+        ├── favicon.ico
+        ├── globals.css
+        └── layout.tsx
+    ├── components/
+        ├── ui/
+            ├── badge.tsx
+            ├── button.tsx
+            ├── calendar.tsx
+            ├── card.tsx
+            ├── checkbox.tsx
+            ├── dialog.tsx
+            ├── form.tsx
+            ├── input-otp.tsx
+            ├── input.tsx
+            ├── label.tsx
+            ├── scroll-area.tsx
+            ├── select.tsx
+            ├── sheet.tsx
+            ├── sonner.tsx
+            └── table.tsx
+        ├── Footer.tsx
+        ├── gallery-carousel.tsx
+        ├── LayoutClient.tsx
+        └── Navbar.tsx
+    ├── context/
+        └── AuthProvider.tsx
+    ├── hooks/
+        └── use-mobile.ts
+    ├── lib/
+        ├── authStore.ts
+        ├── axios.ts
+        ├── dbConnect.ts
+        ├── loadingStore.ts
+        └── utils.ts
+    ├── model/
+        ├── AttendanceModel.ts
+        ├── Teacher.ts
+        └── User.ts
+    ├── schema/
+        ├── studentsignInSchema.ts
+        ├── studentsignUpSchema.ts
+        ├── techersignUpSchema.ts
+        └── verifySchema.ts
+    ├── types/
+        ├── ApiResponse.ts
+        └── next-auth.d.ts
+    └── middleware.ts
+.gitignore
+components.json
+eslint.config.mjs
+next.config.ts
+package-lock.json
+package.json
+postcss.config.mjs
+README.md
+tsconfig.json
 
 
 ---
